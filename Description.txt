@@ -1,0 +1,2 @@
+When frabricating Microfluidic biochips using a micromilling machine, the instruction set inserted is G-Code. 
+Our aim is to make a compiler such that the chip can be written in VHDL and then compiled into G-Code to simplify the complex fabrication.
