@@ -7,7 +7,7 @@ Our aim is to make a compiler such that the high-level design for the chip can b
 
 
 First draft
---------------------------------
+---------------------------------
 Microfluidic biochips (also known as  lab-on-a-chip) are an alternative to conventional biochemical laboratories, and are revolutionizing biology.
 These biochips are becoming increasingly complex, with thousands of components, but are designed manually, which is extremely labor intensive and error prone.
 
