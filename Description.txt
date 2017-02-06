@@ -4,3 +4,12 @@ Our aim is to make a compiler such that the chip can be written in VHDL and then
 
 When frabricating Microfluidic biochips using a micromilling machine, the instruction set inserted is G-Code. 
 Our aim is to make a compiler such that the high-level design for the chip can be written in a hardware descriptive language and then compiled into G-Code to simplify the complex fabrication.
+
+
+First draft
+--------------------------------
+Microfluidic biochips (also known as  lab-on-a-chip) are an alternative to conventional biochemical laboratories, and are revolutionizing biology.
+These biochips are becoming increasingly complex, with thousands of components, but are designed manually, which is extremely labor intensive and error prone.
+
+The need for ways to more easily design the biochips is therefore becoming more apparent. The instructions are read in the form of "G-Code", when fabricating these biochips using a micromilling machine.
+Our aim is to design a descriptive language in which the high-level design for the chip can be written in and then compiled into G-Code to simplify the complex fabrication.
