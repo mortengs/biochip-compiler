@@ -1,2 +1,18 @@
 Do we need to create a parser?
 What language do you recommend us writing this in?
+
+
+
+---------------------
+New Questions
+---------------------
+To finally clear things up:
+Do we write a compiler?
+	Do we konw how to place the components on the chip?
+	What about the routing?
+Will compiling into G-Code bring rise to any problems?
+Has the MHDL Already been done?
+What about the parser for the language?
+Will we use the work that the previous students did?
+Do we need to able to verify if our code is correct?
+Is it possible to analyse and optimize?
