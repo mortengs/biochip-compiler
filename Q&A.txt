@@ -1,3 +1,11 @@
+--------------------
+	Q&A
+--------------------
+
+Do we write a compiler?
+	Do we know how to place the components on the chip?
+	What about the routing?
+
 Do we need to create a parser?
 
 What language do you recommend us writing this in?
@@ -16,3 +24,6 @@ Alexander and component library. Do we need it?
 
 How would our solution be different from Alexander and Lasse’s?
 
+How much do we need to be able to verify if our code is correct?
+
+Is it possible to analyse and optimise?
