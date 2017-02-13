@@ -1,2 +1,0 @@
-Do we need to create a parser?
-What language do you recommend us writing this in?
