@@ -1,0 +1,64 @@
+
+
+Sequential -> parallel
+
+Wet part? Dry part?
+
+Seems to be two different definitions of Aqua. 
+
+Aqua -> AIS (Aquacore instruction set)
+
+AIS:
+
+move id2, id1, <vol> (id2 is destination)
+move-abs id2, id1, vol
+mix id, time
+separate.SIZE id, time
+separate.CE id, Esep, len, time
+separate.AF id, time
+incubate id, temp, time
+input id2, id1 (id2 is destination)
+output id2, id1 (id2 is destination)
+coated-plate-setup id
+sense.OD id, senseval
+sense.FL id, senseval[]
+concentrate.EV id, temp, time
+dispose id
+
+
+Documentation of Aqua: Page 55 in book.v1.pdf
+
+ASSAY name START
+
+FLUID name {dimensions};
+
+VAR name {dimensions};
+
+INPUT name {volume};
+
+REPEAT num_times START statements ENDREPEAT
+
+FOR var FROM var_start TO var_end START statements ENDFOR
+
+result = MIX f1 AND f2 {AND f3...} {IN RATIOS r1 : r2 {: r3...}} FOR duration;
+
+result = INCUBATE fluid AT temperature FOR duration;
+
+SENSE sense_typefluid INTO var;
+
+END
+
+
+What a biochip can do:
+
+Heat, mix, filter
+
+
+Questions: 
+
+Documentation of Aqua.
+
+Is Aqua compiled into AIS to run the program?
+
+Do we need to worry about AIS?
+

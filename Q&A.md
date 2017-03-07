@@ -1,7 +1,7 @@
 # Q&A
 1. *Do we write a compiler?*
 
-        
+        SVG, architechture allocation
 
 2. *Do we need to create a parser?*
 
@@ -50,4 +50,3 @@
 13. *Is it possible to analyse and optimise?*
 
         
-
