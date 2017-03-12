@@ -8,7 +8,7 @@ prog: 'ASSAY' NAME 'START' (declarations NEWLINE)+ (statements NEWLINE)+ 'END';
 
 declarations: fluid|var|input;
 
-statements: input|repeat|for|mix|incubate|sense;
+statements: repeat|for|mix|incubate|sense;
 
 fluid: 'FLUID' NAME DIMENSION?;
 
@@ -18,7 +18,7 @@ input: 'INPUT' NAME NUM?;
 
 repeat: 'REPEAT' NUM 'START' statements 'ENDREPEAT';
 
-for: 'FOR' var 'FROM' NUM 'TO' NUM 'START' statements 'ENDFOR';
+for: 'FOR' NAME 'FROM' NUM 'TO' NUM 'START' statements 'ENDFOR';
 
 mix: 'MIX' NAME ('AND' NAME)+ ('IN RATIOS' NAME (: NAME)+)? 'FOR' NUM;
 
