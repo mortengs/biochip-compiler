@@ -34,3 +34,7 @@
 
 # HTML for MD preview
 *.html
+
+# IntelliJ
+*/.idea
+*.iml
