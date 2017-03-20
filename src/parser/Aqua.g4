@@ -42,7 +42,7 @@ assign: IDENTIFIER '=' (mix | incubate) | IDENTIFIER '=' expr;
 
 mix: 'MIX' IDENTIFIER ('AND' IDENTIFIER)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr;
 
-incubate: 'INCUBATE' IDENTIFIER 'AT' expr ('F'|'C') 'FOR' expr;
+incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
 
 sense: 'SENSE' sense_type IDENTIFIER 'INTO' IDENTIFIER;
 
@@ -60,4 +60,4 @@ index: '[' expr ']';
 
 IDENTIFIER: ('a'..'z'|'A'..'Z'|'_')+ ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
 INTEGER   : '-'?('0'..'9')+;
-WS       : [\t\r\n]+;
+WS        : [ \n\t\r]+ -> skip;

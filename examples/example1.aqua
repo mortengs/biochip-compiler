@@ -1,35 +1,10 @@
-Glucose {
-    --input s1, ip1 --Glucose
-    --input s2, ip2 --Reagent
-    --input s3, ip3 --Sample
-    --washport w1 --;
+ASSAY simple_mix START
+FLUID fluid1;
+FLUID fluid2;
+FLUID fluid3;
 
-    move mixer1, s1, 14;
-    wash w1;
-    move incubator1, s2, 14;
-    mix mixer1, 10;
-    move sensor2, mixer1; sense.OD sensor2, Result(1); move mixer1, s1, 9;
-    wash w1;
-    move incubator1, s2, 19;
-    mix mixer1, 10;
-    move sensor2, mixer1; sense.OD sensor2, Result(2); move mixer1, s1, 5;
-    wash w1;
-    move incubator1, s2, 23;
-    mix mixer1, 10;
-    move sensor2, mixer1;
-    wash w1;
-    sense.OD sensor2, Result(3);
-    move mixer1, s1, 3;
-    wash w1;
-    move incubator1, s2, 26;
-    mix mixer1, 10;
-    move sensor2, mixer1;
-    wash w1;
-    sense.OD sensor2, Result(4);
-    move mixer1, s3, 14;
-    move incubator1, s2, 14;
-    mix mixer1, 10;
-    move sensor2, mixer1;
-    wash w1;
-    sense.OD sensor2, Result(5);
-}
+INPUT fluid1;
+INPUT fluid2;
+
+fluid3 = MIX fluid1 AND fluid2 IN RATIOS 1 : 1 FOR 10;
+END
