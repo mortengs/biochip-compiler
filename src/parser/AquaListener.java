@@ -48,15 +48,15 @@ public interface AquaListener extends ParseTreeListener {
 	 */
 	void exitFluid(AquaParser.FluidContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AquaParser#input}.
+	 * Enter a parse tree produced by {@link AquaParser#input_}.
 	 * @param ctx the parse tree
 	 */
-	void enterInput(AquaParser.InputContext ctx);
+	void enterInput_(AquaParser.Input_Context ctx);
 	/**
-	 * Exit a parse tree produced by {@link AquaParser#input}.
+	 * Exit a parse tree produced by {@link AquaParser#input_}.
 	 * @param ctx the parse tree
 	 */
-	void exitInput(AquaParser.InputContext ctx);
+	void exitInput_(AquaParser.Input_Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link AquaParser#var}.
 	 * @param ctx the parse tree
@@ -138,15 +138,29 @@ public interface AquaListener extends ParseTreeListener {
 	 */
 	void exitStmt(AquaParser.StmtContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AquaParser#assign}.
+	 * Enter a parse tree produced by the {@code assignFluid}
+	 * labeled alternative in {@link AquaParser#assign}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssign(AquaParser.AssignContext ctx);
+	void enterAssignFluid(AquaParser.AssignFluidContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AquaParser#assign}.
+	 * Exit a parse tree produced by the {@code assignFluid}
+	 * labeled alternative in {@link AquaParser#assign}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssign(AquaParser.AssignContext ctx);
+	void exitAssignFluid(AquaParser.AssignFluidContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignExpr}
+	 * labeled alternative in {@link AquaParser#assign}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignExpr(AquaParser.AssignExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignExpr}
+	 * labeled alternative in {@link AquaParser#assign}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignExpr(AquaParser.AssignExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AquaParser#mix}.
 	 * @param ctx the parse tree
@@ -188,15 +202,65 @@ public interface AquaListener extends ParseTreeListener {
 	 */
 	void exitSense_type(AquaParser.Sense_typeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AquaParser#expr}.
+	 * Enter a parse tree produced by the {@code ConstExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpr(AquaParser.ExprContext ctx);
+	void enterConstExpr(AquaParser.ConstExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AquaParser#expr}.
+	 * Exit a parse tree produced by the {@code ConstExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpr(AquaParser.ExprContext ctx);
+	void exitConstExpr(AquaParser.ConstExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MulDiv}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMulDiv(AquaParser.MulDivContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MulDiv}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMulDiv(AquaParser.MulDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AddSub}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAddSub(AquaParser.AddSubContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AddSub}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAddSub(AquaParser.AddSubContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ParExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterParExpr(AquaParser.ParExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ParExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitParExpr(AquaParser.ParExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code VarExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterVarExpr(AquaParser.VarExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code VarExpr}
+	 * labeled alternative in {@link AquaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitVarExpr(AquaParser.VarExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AquaParser#identifier}.
 	 * @param ctx the parse tree

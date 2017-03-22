@@ -4,60 +4,106 @@ options {
   language = Java;
 }
 
+IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
+INTEGER: '-'?[0-9]+;
+WS        : [ \n\t\r]+ -> skip;
+
 assay: 'ASSAY' IDENTIFIER 'START' decls stmts 'END' EOF;
 
-decls: (decl ';')+;
+/* DECLARATIONS */
 
-decl: fluid | input | var | conflict;
+decls
+    : (decl ';')+
+    ;
 
-// Declarations
+decl
+    : fluid
+    | input_
+    | var
+    | conflict
+    ;
 
-fluid: 'FLUID' IDENTIFIER dimension* ('WASH' IDENTIFIER)? ('PORT' INTEGER)?;
+fluid
+    : 'FLUID' name=IDENTIFIER dimension* ('WASH' IDENTIFIER)? ('PORT' INTEGER)?
+    ;
 
-input: 'INPUT' IDENTIFIER INTEGER?;
+input_
+    : 'INPUT' IDENTIFIER INTEGER?
+    ;
 
-var: 'VAR' IDENTIFIER dimension*;
+var
+    : 'VAR' IDENTIFIER dimension*
+    ;
 
-dimension: '[' INTEGER ']';
+dimension
+    : '[' INTEGER ']'
+    ;
 
-conflict: 'CONFLICT' IDENTIFIER ('FOLLOWS' IDENTIFIER | ',' IDENTIFIER) ('WASH' IDENTIFIER)?;
+conflict
+    : 'CONFLICT' IDENTIFIER ('FOLLOWS' IDENTIFIER | ',' IDENTIFIER) ('WASH' IDENTIFIER)?
+    ;
 
-// Statements
+/* STATEMENTS */
 
-stmts: (stmt ';' | control_stmt)+;
+stmts
+    : (stmt ';' | control_stmt)+
+    ;
 
-control_stmt: repeat | for_loop;
+control_stmt
+    : repeat
+    | for_loop
+    ;
 
-repeat: 'REPEAT' expr 'START' stmts 'ENDREPEAT';
+repeat
+    : 'REPEAT' expr 'START' stmts 'ENDREPEAT'
+    ;
 
-for_loop: 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR';
+for_loop
+    : 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR'
+    ;
 
-stmt: assign
-  | mix
-  | incubate
-  | sense
-  | /* empty statement */;
+stmt
+    : assign
+    | mix
+    | incubate
+    | sense
+    | /* empty statement */
+    ;
 
-assign: IDENTIFIER '=' (mix | incubate) | IDENTIFIER '=' expr;
+assign
+    : identifier '=' (mix | incubate) #assignFluid
+    | identifier '=' expr             #assignExpr
+    ;
 
-mix: 'MIX' IDENTIFIER ('AND' IDENTIFIER)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr;
+mix
+    : 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
+    ;
 
-incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
+incubate
+    : 'INCUBATE' identifier 'AT' expr 'FOR' expr
+    ;
 
-sense: 'SENSE' sense_type IDENTIFIER 'INTO' IDENTIFIER;
+sense
+    : 'SENSE' sense_type identifier 'INTO' identifier
+    ;
 
-sense_type: 'FLUORESCENCE' | 'OPTICAL';
+sense_type
+    : 'FLUORESCENCE'
+    | 'OPTICAL'
+    ;
 
-expr: expr ('*' | '/') expr
-  | expr ('x' | '-') expr
-  | '(' expr ')'
-  | identifier
-  | INTEGER;
+expr
+    : expr op=('*'|'/') expr #MulDiv
+    | expr op=('+'|'-') expr #AddSub
+    | '(' expr ')'           #ParExpr
+    | identifier             #VarExpr
+    | INTEGER                #ConstExpr
+    ;
 
-identifier: IDENTIFIER index*;
+identifier
+    : IDENTIFIER index*
+    ;
 
-index: '[' expr ']';
-
-IDENTIFIER: ('a'..'z'|'A'..'Z'|'_')+ ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
-INTEGER   : '-'?('0'..'9')+;
-WS        : [ \n\t\r]+ -> skip;
+index
+    : '[' expr ']'
+    ;
