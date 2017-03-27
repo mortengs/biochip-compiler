@@ -2,15 +2,67 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bb2f33b8-bf50-4d7b-b01f-77be61fb4a63" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/AddSub.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Assay.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Assign.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Conflict.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/ConstExpr.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/ControlStatement.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Declaration.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Dimension.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Expr.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Fluid.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/ForLoop.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Incubate.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Input.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Mix.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/MulDiv.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/ParExpr.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Repeat.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Sense.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/SenseType.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Statement.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/Var.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/ast/VarExpr.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/model/AntlrAquaListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/model/Main.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/Aqua.g4" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/Aqua.tokens" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaBaseListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaLexer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaLexer.tokens" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$AddSubContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$AssayContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$AssignContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$AssignExprContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$AssignFluidContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$ConflictContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$ConstExprContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$Control_stmtContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$DeclContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$DeclsContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$DimensionContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$ExprContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$FluidContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$For_loopContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$IdentifierContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$IncubateContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$IndexContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$Input_Context.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$MixContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$MulDivContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$ParExprContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$RepeatContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$SenseContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$Sense_typeContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$StmtContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$StmtsContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$VarContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser$VarExprContext.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/biochip-compiler/parser/AquaParser.class" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/example1.aq" afterPath="$PROJECT_DIR$/examples/example1.aq" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ast/Conflict.java" afterPath="$PROJECT_DIR$/src/ast/Conflict.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ast/Fluid.java" afterPath="$PROJECT_DIR$/src/ast/Fluid.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ast/Input.java" afterPath="$PROJECT_DIR$/src/ast/Input.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ast/Var.java" afterPath="$PROJECT_DIR$/src/ast/Var.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/model/AntlrAquaListener.java" afterPath="$PROJECT_DIR$/src/model/AntlrAquaListener.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -36,7 +88,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AntlrAquaListener.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AntlrAquaListener.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/model/AntlrAquaListener.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="501">
@@ -46,6 +98,16 @@
                 <element signature="e#397#398#0" expanded="true" />
                 <element signature="e#458#459#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="630">
+              <caret line="42" column="5" lean-forward="false" selection-start-line="42" selection-start-column="5" selection-end-line="42" selection-end-column="5" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -64,7 +126,7 @@
         <entry file="file://$PROJECT_DIR$/src/ast/Input.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="240">
-              <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
               <folding>
                 <element signature="e#159#160#0" expanded="true" />
                 <element signature="e#200#201#0" expanded="true" />
@@ -123,7 +185,6 @@
         <option value="$PROJECT_DIR$/src/ast/assay.java" />
         <option value="$PROJECT_DIR$/src/model/main.java" />
         <option value="$PROJECT_DIR$/src/parser/WhileLanguage.g4" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/parser/AquaListener.java" />
         <option value="$PROJECT_DIR$/src/model/Compiler.java" />
         <option value="$PROJECT_DIR$/src/parser/AquaParser.java" />
@@ -155,6 +216,7 @@
         <option value="$PROJECT_DIR$/src/ast/Conflict.java" />
         <option value="$PROJECT_DIR$/examples/example1.aq" />
         <option value="$PROJECT_DIR$/src/model/AntlrAquaListener.java" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -580,13 +642,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="39" column="5" lean-forward="true" selection-start-line="39" selection-start-column="5" selection-end-line="39" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/biochip-compiler.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -856,7 +911,7 @@
     <entry file="file://$PROJECT_DIR$/src/ast/Input.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
-          <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding>
             <element signature="e#159#160#0" expanded="true" />
             <element signature="e#200#201#0" expanded="true" />
@@ -897,6 +952,14 @@
             <element signature="e#397#398#0" expanded="true" />
             <element signature="e#458#459#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="42" column="5" lean-forward="false" selection-start-line="42" selection-start-column="5" selection-end-line="42" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>
