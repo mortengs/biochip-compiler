@@ -1,6 +1,6 @@
 ASSAY simple_mix START
-FLUID fluid1;
-FLUID fluid2;
+FLUID fluid1[1][2] WASH wash;
+FLUID fluid2 PORT 1;
 FLUID fluid3;
 
 INPUT fluid1;

@@ -10,9 +10,15 @@ public class Var extends Declaration {
 
     private List<Dimension> dimensions = new ArrayList<>();
 
-    public Var(String identifier, List<Dimension> dimensions) {
+    public Var(String identifier) {
         setIdentifier(identifier);
-        this.dimensions = dimensions;
     }
 
+    public List<Dimension> getDimensions() {
+        return dimensions;
+    }
+
+    public void appendDimension(Dimension dimension) {
+        dimensions.add(dimension);
+    }
 }
