@@ -6,12 +6,7 @@ package ast;
 public class Incubate extends Statement {
     //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
 
-    Expr atexpr;
-    Expr forexpr;
-
-    public Incubate(String identifier, Expr atexpr, Expr forexpr) {
+    public Incubate(String identifier) {
         setIdentifier(identifier);
-        this.atexpr = atexpr;
-        this.forexpr = forexpr;
     }
 }

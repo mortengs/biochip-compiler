@@ -9,12 +9,8 @@ import java.util.List;
 public class Mix extends Statement {
 
     String[] identifiers;
-    List<Expr> ratios = new ArrayList<>();
-    Expr forvalue;
 
-    public Mix(String[] identifiers, List<Expr> ratios, Expr forvalue) {
+    public Mix(String[] identifiers) {
         this.identifiers = identifiers;
-        this.ratios = ratios;
-        this.forvalue = forvalue;
     }
 }

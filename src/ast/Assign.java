@@ -7,14 +7,12 @@ public class Assign extends Statement {
 
     Mix mix;
     Incubate incubate;
-    Expr expr;
 
     //assign: IDENTIFIER '=' (mix | incubate) | IDENTIFIER '=' expr;
 
-    public Assign(String identifier, Mix mix, Incubate incubate, Expr expr) {
+    public Assign(String identifier, Mix mix, Incubate incubate) {
         setIdentifier(identifier);
         this.mix = mix;
         this.incubate = incubate;
-        this.expr = expr;
     }
 }

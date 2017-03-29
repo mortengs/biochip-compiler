@@ -5,11 +5,13 @@ package ast;
  */
 public class Repeat extends ControlStatement {
 
-    Expr expr;
     Statement[] statements;
 
-    public Repeat(Expr expr, Statement[] statements) {
-        this.expr = expr;
+    public Repeat(Statement[] statements) {
         this.statements = statements;
+    }
+
+    public Repeat() {
+
     }
 }

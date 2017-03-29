@@ -7,14 +7,14 @@ package ast;
 public class ForLoop extends ControlStatement {
     // 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR'
     String identifier;
-    Expr from;
-    Expr to;
     Statement[] statements;
 
-    public ForLoop(String identifier, Expr from, Expr to, Statement[] statements) {
+    public ForLoop(String identifier, Statement[] statements) {
         this.identifier = identifier;
-        this.from = from;
-        this.to = to;
         this.statements = statements;
+    }
+
+    public ForLoop(String identifier) {
+        this.identifier = identifier;
     }
 }

@@ -1,0 +1,5 @@
+How does it mix with regards to ratio?
+
+A conflict is a declaration, but what is it exactly?
+
+What is the difference between repeat and for_loop

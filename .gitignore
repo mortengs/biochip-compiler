@@ -36,7 +36,7 @@
 *.html
 
 # IntelliJ
-*/.idea
+*.idea/
 *.iml
 
 # Java class files
