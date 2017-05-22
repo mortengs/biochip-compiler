@@ -16,4 +16,8 @@ public class Sense extends Statement {
         this.from = from;
         this.into = into;
     }
+
+    public SenseType getSenseType() {
+        return senseType;
+    }
 }

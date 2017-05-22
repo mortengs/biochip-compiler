@@ -19,6 +19,9 @@ public class AntlrAquaListener extends AquaBaseListener {
     List<Input> inputs = new ArrayList<>();
     List<Statement> statements = new ArrayList<>();
     Assay assay;
+    int numberOfControlStatements;
+    List<Integer> controlStatementsNumber = new ArrayList<>();
+    List<String> errors = new ArrayList<>();
 
     @Override
     public void enterAssay(AquaParser.AssayContext ctx) {
@@ -28,7 +31,8 @@ public class AntlrAquaListener extends AquaBaseListener {
     @Override
     public void exitAssay(AquaParser.AssayContext ctx) {
         isInputAFluid();
-        toString();
+        assay.setDeclarations(new ArrayList<>(declarationsMapper.values()));
+        assay.setStatements(appendStatementsIntoControlStatements(statements));
     }
 
     /* DECLARATIONS */
@@ -103,7 +107,6 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterSense(AquaParser.SenseContext ctx) {
-
         isInMap(ctx.identifier());
 
         SenseType senseType;
@@ -121,37 +124,53 @@ public class AntlrAquaListener extends AquaBaseListener {
     @Override
     public void enterFor_loop(AquaParser.For_loopContext ctx) {
         // todo: Append start loop to list
-        statements.add(new ForLoop(ctx.IDENTIFIER().getText()));
+        numberOfControlStatements++;
+        controlStatementsNumber.add(numberOfControlStatements);
+        statements.add(new ForLoop(true, ctx.IDENTIFIER().getText()));
     }
 
     @Override
     public void exitFor_loop(AquaParser.For_loopContext ctx) {
         // todo: Append end loop to list
-        statements.add(new ForLoop(ctx.IDENTIFIER().getText()));
+        controlStatementsNumber.add(numberOfControlStatements);
+        numberOfControlStatements--;
+        statements.add(new ForLoop(false, ctx.IDENTIFIER().getText()));
     }
 
     @Override
     public void enterRepeat(AquaParser.RepeatContext ctx) {
-        statements.add(new Repeat());
+        numberOfControlStatements++;
+        controlStatementsNumber.add(numberOfControlStatements);
+        statements.add(new Repeat(true));
     }
 
     @Override
     public void exitRepeat(AquaParser.RepeatContext ctx) {
-        statements.add(new Repeat());
+        controlStatementsNumber.add(numberOfControlStatements);
+        numberOfControlStatements--;
+        statements.add(new Repeat(false));
     }
 
     /* HELPER FUNCTIONS */
 
+    public Assay getAssay() {
+        return assay;
+    }
+
+    public List<String> getErrors() {
+        return errors;
+    }
+
     public void isInMap(AquaParser.IdentifierContext id) {
         if (!declarationsMapper.containsKey(id.getText())) {
-            System.out.println("ERROR: " + id.getText() + " is not a declaration");
+            errors.add("ERROR: " + id.getText() + " is not a declaration");
         }
     }
 
     public void isInMap(List<AquaParser.IdentifierContext> ids) {
         for (AquaParser.IdentifierContext id : ids) {
             if (!declarationsMapper.containsKey(id.getText())) {
-                System.out.println("ERROR: " + id.getText() + " is not a declaration");
+                errors.add("ERROR: " + id.getText() + " is not a declaration");
             }
         }
     }
@@ -161,26 +180,41 @@ public class AntlrAquaListener extends AquaBaseListener {
         for (Input input : inputs) {
             if (!declarationsMapper.containsKey(input.getIdentifier())) {
                 isFluid = false;
-                System.out.println("ERROR: "+input.getIdentifier()+" is not declared as a fluid");
+                errors.add("ERROR: "+input.getIdentifier()+" is not declared as a fluid");
             }
         }
         return isFluid;
     }
 
-    public String toString() {
-        for (Statement stmt : statements) {
-            if (stmt instanceof Mix) {
-                System.out.println("Mix");
-            } else if (stmt instanceof Sense) {
-                System.out.println("Sense");
-            } else if (stmt instanceof Incubate) {
-                System.out.println("Incubate");
-            } else if (stmt instanceof ForLoop) {
-                System.out.println("ForLoop");
-            } else if (stmt instanceof Repeat) {
-                System.out.println("Repeat");
+    public List<Statement> appendStatementsIntoControlStatements(List<Statement> statements) {
+        List<Statement> newList = new ArrayList<>();
+        while (!statements.isEmpty()) {
+            Statement stmt = statements.get(0);
+            if (stmt instanceof Repeat) {
+                if (((Repeat) stmt).getIsStart()) {
+                    statements.remove(0);
+                    newList.add(new Repeat(appendStatementsIntoControlStatements(statements)));
+                    continue;
+                } else {
+                    statements.remove(0);
+                    break;
+                }
             }
+
+            if (stmt instanceof ForLoop) {
+                if (((ForLoop) stmt).getIsStart()) {
+                    statements.remove(0);
+                    newList.add(new ForLoop(stmt.getIdentifier(), appendStatementsIntoControlStatements(statements)));
+                    continue;
+                } else {
+                    statements.remove(0);
+                    break;
+                }
+            }
+
+            statements.remove(0);
+            newList.add(stmt);
         }
-        return "";
+        return newList;
     }
 }

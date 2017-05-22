@@ -15,4 +15,8 @@ public class Assign extends Statement {
         this.mix = mix;
         this.incubate = incubate;
     }
+
+    public Assign(String identifier) {
+        setIdentifier(identifier);
+    }
 }

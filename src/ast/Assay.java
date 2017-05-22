@@ -25,4 +25,20 @@ public class Assay {
     public void appendStatementList(Statement statement) {
         statements.add(statement);
     }
+
+    public void setDeclarations(List<Declaration> declarations) {
+        this.declarations = declarations;
+    }
+
+    public void setStatements(List<Statement> statements) {
+        this.statements = statements;
+    }
+
+    public List<Declaration> getDeclarations() {
+        return declarations;
+    }
+
+    public List<Statement> getStatements() {
+        return statements;
+    }
 }

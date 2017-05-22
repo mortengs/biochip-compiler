@@ -1,5 +1,6 @@
 package model;
 
+import ast.Assay;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -8,6 +9,7 @@ import parser.AquaParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Jesper on 15/03/2017.
@@ -15,6 +17,8 @@ import java.io.IOException;
 public class Main {
 
     private static final String VERSION = "v0.1";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_RESET = "\u001B[0m";
 
     public static void main(String args[]) throws Exception {
         File file;
@@ -55,6 +59,19 @@ public class Main {
         ParseTreeWalker walker = new ParseTreeWalker();
         AntlrAquaListener listener = new AntlrAquaListener();
         walker.walk(listener, assayContext);
+
+        Assay assay = listener.getAssay();
+        List<String> errs = listener.getErrors();
+
+        if (errs.size() > 0) {
+            for (String err: errs) {
+                System.err.println(ANSI_RED + err + ANSI_RESET);
+            }
+            return;
+        }
+
+        Synthesize synthesizer = new Synthesize();
+        synthesizer.synthesize(assay);
     }
 
     private static void stream(File file) throws IOException {

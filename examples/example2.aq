@@ -1,0 +1,21 @@
+ASSAY simple_mix START
+FLUID fluid1[1][2] WASH wash;
+FLUID fluid2 PORT 1;
+FLUID fluid3;
+
+VAR num1;
+VAR num2;
+
+INPUT fluid1;
+INPUT fluid2;
+
+num1 = 20;
+
+REPEAT expr START
+    SENSE FLUORESCENCE num1 INTO hey2;
+    REPEAT expr START
+        MIX fluid1 AND fluid2 IN RATIOS num1 : (num2*num1) FOR 10;
+    ENDREPEAT;
+ENDREPEAT;
+
+END
