@@ -10,8 +10,4 @@ public abstract class Statement {
         return identifier;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
 }

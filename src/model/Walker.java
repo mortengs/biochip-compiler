@@ -3,20 +3,21 @@ package model;
 import ast.Assay;
 import ast.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Jesper on 22/05/2017.
  */
 public class Walker {
-    public void walk(Assay assay) {
-        List<Statement> statements = assay.getStatements();
-        for (Statement stmt: statements) {
+    List<Statement> statements = new ArrayList<>();
 
+    public Statement walk() {
+        if(!statements.isEmpty()) {
+            Statement stmt = statements.get(0);
+            statements.remove(0);
+            return stmt;
         }
-    }
-
-    public void walk(List<Statement> statements) {
-
+        return null;
     }
 }

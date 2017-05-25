@@ -8,19 +8,28 @@ import java.util.List;
 
 public class ForLoop extends ControlStatement {
     // 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR'
+    Integer from;
+    Integer to;
     List<Statement> statements;
     boolean isStart;
 
-    public ForLoop(String identifier, List<Statement> statements) {
+    public ForLoop(String identifier, Integer from, Integer to, List<Statement> statements, boolean isStart) {
         this.identifier = identifier;
+        this.from = from;
+        this.to = to;
         this.statements = statements;
-    }
-
-    public ForLoop(boolean isStart, String identifier) {
         this.isStart=isStart;
     }
 
     public boolean getIsStart() {
         return isStart;
+    }
+
+    public Integer getFrom() {
+        return from;
+    }
+
+    public Integer getTo() {
+        return to;
     }
 }

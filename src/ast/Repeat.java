@@ -7,20 +7,23 @@ import java.util.List;
  */
 public class Repeat extends ControlStatement {
 
-    List<Statement> statements;
+    private Integer expr;
+    private List<Statement> statements;
     // Used when creating the IR
-    boolean isStart;
+    private boolean isStart;
 
-    public Repeat(List<Statement> statements) {
+    public Repeat(Integer expr, List<Statement> statements, boolean isStart) {
+        this.expr = expr;
         this.statements = statements;
-    }
-
-    public Repeat(boolean isStart) {
-        this.isStart=isStart;
+        this.isStart = isStart;
     }
 
     public boolean getIsStart() {
         return isStart;
+    }
+
+    public Integer getExpr() {
+        return expr;
     }
 
     public List<Statement> getStatements() {

@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class Var extends Declaration {
 
+    private Integer value = null;
+
     private List<Dimension> dimensions = new ArrayList<>();
 
     public Var(String identifier) {
@@ -16,6 +18,14 @@ public class Var extends Declaration {
 
     public List<Dimension> getDimensions() {
         return dimensions;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
+
+    public Integer getValue() {
+        return value;
     }
 
     public void appendDimension(Dimension dimension) {
