@@ -81,8 +81,12 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterAssignFluid(AquaParser.AssignFluidContext ctx) {
-        // TODO: implement
-        new AssignFluid(ctx.identifier().getText());
+        Declaration decl = declarationsMapper.get(ctx.identifier().getText());
+        if (decl instanceof Fluid) {
+            statements.add(new AssignFluid(ctx.identifier().getText()));
+        } else {
+            System.out.println("ERROR: "+decl.getIdentifier()+" is not a FLUID");
+        }
     }
 
     @Override
@@ -115,14 +119,30 @@ public class AntlrAquaListener extends AquaBaseListener {
         Integer forValue = ratioList.get(ratioList.size()-1);
         ratioList.remove(ratioList.size()-1);
 
-        statements.add(new Mix(identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+        // Check if the last statement was an assign instruction
+        Statement assign = statements.get(statements.size()-1);
+        if (assign instanceof AssignFluid) {
+            // This assign now holds this instruction
+            statements.remove(assign);
+            statements.add(new AssignFluid(assign.getIdentifier(),new Mix(identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue)));
+        } else {
+            statements.add(new Mix(identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+        }
     }
 
     @Override
     public void enterIncubate(AquaParser.IncubateContext ctx) {
         isInMap(ctx.identifier());
 
-        statements.add(new Incubate(ctx.identifier().getText(),getExprValue(ctx.expr(0)),getExprValue(ctx.expr(1))));
+        // Check if the last statement was an assign instruction
+        Statement assign = statements.get(statements.size()-1);
+        if (assign instanceof AssignFluid) {
+            // This assign now holds this instruction
+            statements.remove(assign);
+            statements.add(new AssignFluid(assign.getIdentifier(),new Incubate(ctx.identifier().getText(),getExprValue(ctx.expr(0)),getExprValue(ctx.expr(1)))));
+        } else {
+            statements.add(new Incubate(ctx.identifier().getText(),getExprValue(ctx.expr(0)),getExprValue(ctx.expr(1))));
+        }
     }
 
     @Override
@@ -239,25 +259,40 @@ public class AntlrAquaListener extends AquaBaseListener {
     /* Expression handling */
 
     private Integer getExprValue(AquaParser.ExprContext expr) {
-        // TODO: Handle operations on null value
-        // TODO: Handle parenthesis
         if(expr instanceof AquaParser.AddSubContext) {
+            Integer value0 = getExprValue(((AquaParser.AddSubContext) expr).expr(0));
+            Integer value1 = getExprValue(((AquaParser.AddSubContext) expr).expr(1));
+            if (value0 == null || value1 == null) {
+                return null;
+            }
             if(((AquaParser.AddSubContext) expr).op.getText().equals("+")) {
-                return getExprValue(((AquaParser.AddSubContext) expr).expr(0))+getExprValue(((AquaParser.AddSubContext) expr).expr(1));
+                return value0+value1;
             } else {
-                return getExprValue(((AquaParser.AddSubContext) expr).expr(0))-getExprValue(((AquaParser.AddSubContext) expr).expr(1));
+                return value0-value1;
             }
         } else if( expr instanceof AquaParser.MulDivContext) {
+            Integer value0 = getExprValue(((AquaParser.MulDivContext) expr).expr(0));
+            Integer value1 = getExprValue(((AquaParser.MulDivContext) expr).expr(1));
+            if (value0 == null || value1 == null) {
+                return null;
+            }
             if(((AquaParser.MulDivContext) expr).op.getText().equals("*")) {
-                return getExprValue(((AquaParser.AddSubContext) expr).expr(0))*getExprValue(((AquaParser.AddSubContext) expr).expr(1));
+                return value0*value1;
             } else {
-                return getExprValue(((AquaParser.AddSubContext) expr).expr(0))/getExprValue(((AquaParser.AddSubContext) expr).expr(1));
-                // TODO: handle illegal divisions
+                // Illegal divisions with null or 0
+                if (value1 == 0) {
+                    errors.add("ERROR: "+((AquaParser.MulDivContext) expr).expr(1).getText()+" illegal division with zero");
+                    return null;
+                } else {
+                    return value0 / value1;
+                }
             }
         } else if (expr instanceof AquaParser.ConstExprContext) {
             return checkConstExpr((AquaParser.ConstExprContext) expr);
         } else if (expr instanceof AquaParser.VarExprContext) {
             return getVarExprValue((AquaParser.VarExprContext) expr);
+        } else if (expr instanceof AquaParser.ParExprContext) {
+            return getExprValue(((AquaParser.ParExprContext) expr).expr());
         } else {
             return null;
         }
@@ -273,7 +308,6 @@ public class AntlrAquaListener extends AquaBaseListener {
             errors.add("ERROR: "+expr.identifier().getText()+" has not been declared");
             return null;
         }
-        Integer value = ((Var) decl).getValue();
-        return value;
+        return ((Var) decl).getValue();
     }
 }

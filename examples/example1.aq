@@ -5,13 +5,16 @@ FLUID fluid3;
 
 VAR num1;
 VAR num2;
+VAR num3;
 
 INPUT fluid1;
 INPUT fluid2;
 
-fluid3 = MIX fluid1 AND fluid2 IN RATIOS num1 : (num2*num1) FOR 10;
-
 num1 = 20;
+num2 = 2;
+num3 = 2;
+
+fluid3 = MIX fluid1 AND fluid2 IN RATIOS num1 : 10 FOR (num1+num3+num1)/num2+num1;
 
 REPEAT expr START SENSE FLUORESCENCE num1 INTO hey2; ENDREPEAT;
 

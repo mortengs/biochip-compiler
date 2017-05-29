@@ -5,7 +5,4 @@ package ast;
  */
 public abstract class ControlStatement extends Statement {
 
-    public ControlStatement() {
-
-    }
 }
