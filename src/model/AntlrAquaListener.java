@@ -28,7 +28,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void exitAssay(AquaParser.AssayContext ctx) {
-        isInputAFluid();
+        checkIsInputAFluid();
         assay.setDeclarations(new ArrayList<>(declarationsMapper.values()));
         assay.setStatements(appendStatementsIntoControlStatements(statements));
     }
@@ -37,44 +37,43 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterFluid(AquaParser.FluidContext ctx) {
-        Fluid fluid = new Fluid(ctx.IDENTIFIER(0).getText());
+        String identifier = ctx.IDENTIFIER(0).getText();
+        Dimension[] dimensions = new Dimension[ctx.dimension().size()-1];
         for (AquaParser.DimensionContext dimc: ctx.dimension()) {
-            fluid.appendDimension(new Dimension(Integer.parseInt(dimc.getText().substring(1, dimc.getText().length()-1))));
+            dimensions[dimc.depth()] = new Dimension(Integer.parseInt(dimc.getText().substring(1, dimc.getText().length()-1)));
         }
-        if (ctx.IDENTIFIER(1) != null) {
-            fluid.setWash_identifier(ctx.IDENTIFIER(1).getText());
-        }
-        if (ctx.INTEGER() != null) {
-            fluid.setPort_integer(Integer.parseInt(ctx.INTEGER().getText()));
-        }
-        declarationsMapper.put(ctx.IDENTIFIER(0).getText(),fluid);
+        String wash = ctx.IDENTIFIER(1).getText();
+        Integer port = Integer.parseInt(ctx.INTEGER().getText());
+
+        checkIsUniqueIdentifier(identifier);
+
+        declarationsMapper.put(identifier,new Fluid(identifier,dimensions,wash,port));
     }
 
     @Override
     public void enterInput_(AquaParser.Input_Context ctx) {
-        Input input = new Input(ctx.IDENTIFIER().getText());
-        if (ctx.INTEGER() != null) {
-            input.setInput_integer(Integer.parseInt(ctx.INTEGER().getText()));
-        }
-        inputs.add(input);
+        String identifier = ctx.IDENTIFIER().getText();
+        Integer input_integer = Integer.parseInt(ctx.INTEGER().getText());
+        inputs.add(new Input(identifier,input_integer));
     }
 
     @Override
     public void enterVar(AquaParser.VarContext ctx) {
-        Var var = new Var(ctx.IDENTIFIER().getText());
+        String identifier = ctx.IDENTIFIER().getText();
+        Dimension[] dimensions = new Dimension[ctx.dimension().size()-1];
         for (AquaParser.DimensionContext dimc: ctx.dimension()) {
-            var.appendDimension(new Dimension(Integer.parseInt(dimc.getText().substring(1, dimc.getText().length()-1))));
+            dimensions[dimc.depth()] = new Dimension(Integer.parseInt(dimc.getText().substring(1, dimc.getText().length()-1)));
         }
-        declarationsMapper.put(ctx.IDENTIFIER().getText(),var);
+        declarationsMapper.put(identifier, new Var(identifier,dimensions));
     }
 
     @Override
     public void enterConflict(AquaParser.ConflictContext ctx) {
-        Conflict conflict = new Conflict(ctx.IDENTIFIER(0).getText(),ctx.IDENTIFIER(1).getText());
-        if (ctx.IDENTIFIER(2) != null) {
-            conflict.setWash_identifier(ctx.IDENTIFIER(2).getText());
-        }
-        declarationsMapper.put(ctx.IDENTIFIER(0).getText(),conflict);
+        String identifier = ctx.IDENTIFIER(0).getText();
+        String follows_identifier = ctx.IDENTIFIER(1).getText();
+        String wash_identifier = ctx.IDENTIFIER(2).getText();
+
+        declarationsMapper.put(identifier,new Conflict(identifier,follows_identifier,wash_identifier));
     }
 
     /* STATEMENTS */
@@ -103,7 +102,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterMix(AquaParser.MixContext ctx) {
-        isInMap(ctx.identifier());
+        checkIsNameInitialized(ctx.identifier());
 
         String[] identifiers = new String[ctx.identifier().size()];
         for (int i = 0; i < ctx.identifier().size(); i++) {
@@ -132,7 +131,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterIncubate(AquaParser.IncubateContext ctx) {
-        isInMap(ctx.identifier());
+        checkIsNameInitialized(ctx.identifier());
 
         // Check if the last statement was an assign instruction
         Statement assign = statements.get(statements.size()-1);
@@ -147,7 +146,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterSense(AquaParser.SenseContext ctx) {
-        isInMap(ctx.identifier());
+        checkIsNameInitialized(ctx.identifier());
 
         SenseType senseType;
         if (ctx.sense_type().getText().equals("FLUORESCENCE")) {
@@ -191,21 +190,19 @@ public class AntlrAquaListener extends AquaBaseListener {
         return errors;
     }
 
-    private boolean isUniqueIdentifier(String identifier) {
-        if(declarationsMapper.containsKey(identifier)) {
-            return true;
-        } else {
-            return false;
+    private void checkIsUniqueIdentifier(String id) {
+        if(declarationsMapper.containsKey(id)) {
+            errors.add("ERROR: " + id + " is not a unique declaration");
         }
     }
 
-    private void isInMap(AquaParser.IdentifierContext id) {
+    private void checkIsNameInitialized(AquaParser.IdentifierContext id) {
         if (!declarationsMapper.containsKey(id.getText())) {
             errors.add("ERROR: " + id.getText() + " is not a declaration");
         }
     }
 
-    private void isInMap(List<AquaParser.IdentifierContext> ids) {
+    private void checkIsNameInitialized(List<AquaParser.IdentifierContext> ids) {
         for (AquaParser.IdentifierContext id : ids) {
             if (!declarationsMapper.containsKey(id.getText())) {
                 errors.add("ERROR: " + id.getText() + " is not a declaration");
@@ -213,15 +210,12 @@ public class AntlrAquaListener extends AquaBaseListener {
         }
     }
 
-    private boolean isInputAFluid() {
-        boolean isFluid = true;
+    private void checkIsInputAFluid() {
         for (Input input : inputs) {
             if (!declarationsMapper.containsKey(input.getIdentifier())) {
-                isFluid = false;
                 errors.add("ERROR: "+input.getIdentifier()+" is not declared as a fluid");
             }
         }
-        return isFluid;
     }
 
     private List<Statement> appendStatementsIntoControlStatements(List<Statement> statements) {

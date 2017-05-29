@@ -9,35 +9,26 @@ import java.util.List;
 
 public class Fluid extends Declaration {
 
-    private List<Dimension> dimensions = new ArrayList<>();
+    private Dimension[] dimensions;
     private String wash_identifier;
-    private int port_integer;
+    private Integer port_integer;
 
-    public Fluid(String identifer) {
-        setIdentifier(identifer);
+    public Fluid(String identifier, Dimension[] dimensions, String wash_identifier, Integer port_integer) {
+        this.identifier = identifier;
+        this.dimensions = dimensions;
+        this.wash_identifier = wash_identifier;
+        this.port_integer = port_integer;
     }
 
-    public List<Dimension> getDimensions() {
+    public Dimension[] getDimensions() {
         return dimensions;
-    }
-
-    public void appendDimension(Dimension dimension) {
-        dimensions.add(dimension);
     }
 
     public String getWash_identifier() {
         return wash_identifier;
     }
 
-    public void setWash_identifier(String wash_identifier) {
-        this.wash_identifier = wash_identifier;
-    }
-
-    public int getPort_integer() {
+    public Integer getPort_integer() {
         return port_integer;
-    }
-
-    public void setPort_integer(int port_integer) {
-        this.port_integer = port_integer;
     }
 }

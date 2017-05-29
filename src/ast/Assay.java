@@ -18,14 +18,6 @@ public class Assay {
         this.identifier = identifier;
     }
 
-    public void appendDeclarationList(Declaration declaration) {
-        declarations.add(declaration);
-    }
-
-    public void appendStatementList(Statement statement) {
-        statements.add(statement);
-    }
-
     public void setDeclarations(List<Declaration> declarations) {
         this.declarations = declarations;
     }

@@ -9,14 +9,14 @@ import java.util.List;
 public class Var extends Declaration {
 
     private Integer value = null;
+    private Dimension[] dimensions;
 
-    private List<Dimension> dimensions = new ArrayList<>();
-
-    public Var(String identifier) {
-        setIdentifier(identifier);
+    public Var(String identifier, Dimension[] dimensions) {
+        this.identifier = identifier;
+        this.dimensions = dimensions;
     }
 
-    public List<Dimension> getDimensions() {
+    public Dimension[] getDimensions() {
         return dimensions;
     }
 
@@ -26,9 +26,5 @@ public class Var extends Declaration {
 
     public Integer getValue() {
         return value;
-    }
-
-    public void appendDimension(Dimension dimension) {
-        dimensions.add(dimension);
     }
 }

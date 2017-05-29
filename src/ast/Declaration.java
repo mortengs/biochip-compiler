@@ -6,12 +6,10 @@ package ast;
  */
 public abstract class Declaration {
 
-    private String identifier;
+    protected String identifier;
 
     public String getIdentifier() {
         return identifier;
     }
-
-    public void setIdentifier(String identifier) { this.identifier=identifier; }
 
 }

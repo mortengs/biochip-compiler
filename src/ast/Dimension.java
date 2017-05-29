@@ -4,9 +4,9 @@ package ast;
  * Created by Jesper on 20/03/2017.
  */
 public class Dimension {
-    private int integer;
+    private Integer integer;
 
-    public Dimension(int integer) {
+    public Dimension(Integer integer) {
         this.integer = integer;
     }
 }

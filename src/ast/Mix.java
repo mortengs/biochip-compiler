@@ -8,9 +8,9 @@ import java.util.List;
  */
 public class Mix extends Statement {
     // 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
-    String[] identifiers;
-    Integer[] ratio;
-    Integer forvalue;
+    private String[] identifiers;
+    private Integer[] ratio;
+    private Integer forvalue;
 
     public Mix(String[] identifiers, Integer[] ratio, Integer forvalue) {
         this.identifiers = identifiers;
