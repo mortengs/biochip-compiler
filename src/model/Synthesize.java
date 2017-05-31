@@ -18,13 +18,13 @@ public class Synthesize {
                 System.out.println("ForLoop: "+forLoop.getIdentifier()+", from "+forLoop.getFrom()+", to "+forLoop.getTo()+", statements "+forLoop.getStatements().size());
             } else if (stmt instanceof Mix) {
                 Mix mix = (Mix) stmt;
-                System.out.println("Mix: "+mix.getAssign()+", identifiers "+mix.getIdentifiers().length+", ratio "+mix.getRatio().length+", forvalue "+mix.getForvalue());
+                System.out.println("Mix: "+mix.getAssign().getIdentifier()+", identifiers "+mix.getIdentifiers().length+", ratio "+mix.getRatio().length+", forvalue "+mix.getForvalue());
             } else if (stmt instanceof Incubate) {
                 Incubate incubate = (Incubate) stmt;
-                System.out.println("Incubate: "+incubate.getAssign()+", identifier "+incubate.getIdentifier()+ ", at "+incubate.getAt()+", for "+incubate.getForvalue());
+                System.out.println("Incubate: "+incubate.getAssign().getIdentifier()+", identifier "+incubate.getIdentifier().getIdentifier()+ ", at "+incubate.getAt()+", for "+incubate.getForvalue());
             } else if (stmt instanceof Sense) {
                 Sense sense = (Sense) stmt;
-                System.out.println("Sense: "+sense.getSenseType()+", from "+sense.getFrom()+ ", into "+sense.getInto());
+                System.out.println("Sense: "+sense.getSenseType()+", from "+sense.getFrom().getIdentifier()+ ", into "+sense.getInto().getIdentifier());
             } else {
                 System.out.println("Doesn't exist");
             }

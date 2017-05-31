@@ -5,23 +5,23 @@ package ast;
  */
 public class Incubate extends Statement {
     //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
-    private String identifier;
-    private String assign;
+    private Identifier identifier;
+    private Identifier assign;
     private Integer at;
     private Integer forvalue;
 
-    public Incubate(String assign, String identifier, Integer at, Integer forvalue) {
+    public Incubate(Identifier assign, Identifier identifier, Integer at, Integer forvalue) {
         this.assign = assign;
         this.identifier = identifier;
         this.at = at;
         this.forvalue = forvalue;
     }
 
-    public String getAssign() {
+    public Identifier getAssign() {
         return assign;
     }
 
-    public String getIdentifier() {
+    public Identifier getIdentifier() {
         return identifier;
     }
 

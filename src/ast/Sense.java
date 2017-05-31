@@ -7,11 +7,11 @@ public class Sense extends Statement {
 
     //sense: 'SENSE' sense_type IDENTIFIER 'INTO' IDENTIFIER;
 
-    private String from;
-    private String into;
+    private Identifier from;
+    private Identifier into;
     private SenseType senseType;
 
-    public Sense(SenseType senseType, String from, String into) {
+    public Sense(SenseType senseType, Identifier from, Identifier into) {
         this.senseType = senseType;
         this.from = from;
         this.into = into;
@@ -21,11 +21,11 @@ public class Sense extends Statement {
         return senseType;
     }
 
-    public String getFrom() {
+    public Identifier getFrom() {
         return from;
     }
 
-    public String getInto() {
+    public Identifier getInto() {
         return into;
     }
 }

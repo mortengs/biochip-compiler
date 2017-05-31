@@ -19,6 +19,7 @@ ASSAY example START
     f4 = MIX f1 AND f2 FOR 30;
     FOR v2 FROM 1 TO 4 START
         INCUBATE f4 AT 15*v2 FOR 30;
+        v2 = 2;
         SENSE OPTICAL it INTO v3[v2];
     ENDFOR
 END

@@ -1,5 +1,7 @@
 package ast;
 
+import com.sun.xml.internal.bind.v2.model.core.ID;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,23 +10,23 @@ import java.util.List;
  */
 public class Mix extends Statement {
     // 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
-    private String assign;
-    private String[] identifiers;
+    private Identifier assign;
+    private Identifier[] identifiers;
     private Integer[] ratio;
     private Integer forvalue;
 
-    public Mix(String assign, String[] identifiers, Integer[] ratio, Integer forvalue) {
+    public Mix(Identifier assign, Identifier[] identifiers, Integer[] ratio, Integer forvalue) {
         this.assign = assign;
         this.identifiers = identifiers;
         this.ratio = ratio;
         this.forvalue = forvalue;
     }
 
-    public String getAssign() {
+    public Identifier getAssign() {
         return assign;
     }
 
-    public String[] getIdentifiers() {
+    public Identifier[] getIdentifiers() {
         return identifiers;
     }
 

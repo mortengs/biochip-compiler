@@ -9,4 +9,8 @@ public class Dimension {
     public Dimension(Integer integer) {
         this.integer = integer;
     }
+
+    public Integer getDimension() {
+        return integer;
+    }
 }

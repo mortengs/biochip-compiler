@@ -9,6 +9,8 @@ import java.util.List;
  */
 public class AnalyzerOptimizer {
 
+
+    // TODO: LS algorithm
     public List<Statement> resourceConstrainedListScheduling(List<Statement> statements, String[] constraints) {
         int time = 0;
         while (!statements.isEmpty()) {
@@ -16,4 +18,6 @@ public class AnalyzerOptimizer {
         }
         return null;
     }
+
+    // TODO: Solution to mixer ratio problem
 }

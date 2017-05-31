@@ -3,6 +3,7 @@ package model;
 import ast.Assay;
 
 import ast.*;
+import com.sun.xml.internal.bind.v2.model.core.ID;
 import org.antlr.v4.codegen.model.decl.Decl;
 import parser.AquaBaseListener;
 import parser.AquaParser;
@@ -22,7 +23,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     private List<Statement> statements = new ArrayList<>();
     private Assay assay;
     private List<String> errors = new ArrayList<>();
-    private String assignFluid;
+    private Identifier assignFluid;
 
     @Override
     public void enterAssay(AquaParser.AssayContext ctx) {
@@ -101,9 +102,10 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterAssignFluid(AquaParser.AssignFluidContext ctx) {
-        Declaration decl = declarationsMapper.get(ctx.identifier().getText());
+        Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Fluid) {
-            assignFluid = ctx.identifier().getText();
+            Fluid fluid = (Fluid) decl;
+            assignFluid = getIdentifier(ctx.identifier());
         } else {
             System.out.println("ERROR: "+decl.getIdentifier()+" is not a FLUID");
         }
@@ -111,7 +113,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterAssignExpr(AquaParser.AssignExprContext ctx) {
-        Declaration decl = declarationsMapper.get(ctx.identifier().getText());
+        Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Var) {
             Var var = (Var) decl;
             var.setValue(getExprValue(ctx.expr()));
@@ -125,16 +127,16 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterMix(AquaParser.MixContext ctx) {
         checkIsNameInitialized(ctx.identifier());
 
-        String[] identifiers = new String[ctx.identifier().size()];
+        Identifier[] identifiers = new Identifier[ctx.identifier().size()];
 
         // Check whether the fluids were the previously used
         if (ctx.identifier(0).getText().equals("it")) {
-            identifiers[0] = ctx.identifier(0).getText();
+            identifiers[0] = new Identifier(ctx.identifier(0).IDENTIFIER().getText(), null);
         } else {
             for (int i = 0; i < ctx.identifier().size(); i++) {
                 Declaration decl = declarationsMapper.get(ctx.identifier(i).getText());
-                if (decl instanceof Fluid) {
-                    identifiers[i] = ((Fluid) decl).getIdentifier();
+                if (decl instanceof Fluid || ctx.identifier(i).IDENTIFIER().getText().equals("it")) {
+                    identifiers[i] = getIdentifier(ctx.identifier(i));
                 } else {
                     errors.add("ERROR: "+decl.getIdentifier()+" is not a FLUID");
                 }
@@ -154,7 +156,7 @@ public class AntlrAquaListener extends AquaBaseListener {
             statements.add(new Mix(assignFluid, identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
             assignFluid = null;
         } else {
-            statements.add(new Mix("it", identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+            statements.add(new Mix(new Identifier("it", null), identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
         }
     }
 
@@ -162,39 +164,30 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterIncubate(AquaParser.IncubateContext ctx) {
         checkIsNameInitialized(ctx.identifier());
 
-        String identifier = ctx.identifier().getText();
-
-        // Check whether the fluids were the previously used
-        if (ctx.identifier().getText().equals("it")) {
-            identifier = "it";
-        } else {
-            Declaration decl = declarationsMapper.get(identifier);
-            if (decl instanceof Fluid) {
-                identifier = ((Fluid) decl).getIdentifier();
+        Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
+        if (decl instanceof Fluid || ctx.identifier().IDENTIFIER().getText().equals("it")) {
+            Identifier identifier = getIdentifier(ctx.identifier());
+            if (assignFluid != null) {
+                statements.add(new Incubate(assignFluid, identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+                assignFluid = null;
             } else {
-                errors.add("ERROR: "+decl.getIdentifier()+" is not a FLUID");
+                statements.add(new Incubate(new Identifier("it", null), identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
             }
-            // Save the fluids for when calling "it"
-        }
-
-        if (assignFluid != null) {
-            statements.add(new Incubate(assignFluid, identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
-            assignFluid = null;
         } else {
-            statements.add(new Incubate("it", identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+            errors.add("ERROR: "+ctx.identifier().IDENTIFIER().getText()+" is not a FLUID");
         }
+        // Save the fluids for when calling "it"
     }
 
     @Override
     public void enterSense(AquaParser.SenseContext ctx) {
         checkIsNameInitialized(ctx.identifier());
 
-        String fluid = ctx.identifier(0).IDENTIFIER().getText();
-        Declaration decl1 = declarationsMapper.get(fluid);
-        String var = ctx.identifier(1).IDENTIFIER().getText();
-        Declaration decl2 = declarationsMapper.get(var);
-        if (decl1 instanceof Fluid || fluid.equals("it")) {
-            if (decl2 instanceof Var) {
+        Identifier[] identifiers = new Identifier[ctx.identifier().size()];
+        Declaration fluid = declarationsMapper.get(ctx.identifier(0).IDENTIFIER().getText());
+        Declaration var = declarationsMapper.get(ctx.identifier(1).IDENTIFIER().getText());
+        if (fluid instanceof Fluid || ctx.identifier(0).IDENTIFIER().getText().equals("it")) {
+            if (var instanceof Var) {
                 SenseType senseType;
                 if (ctx.sense_type().getText().equals("FLUORESCENCE")) {
                     senseType = SenseType.FLUORESCENCE;
@@ -202,12 +195,23 @@ public class AntlrAquaListener extends AquaBaseListener {
                     senseType = SenseType.OPTICAL;
                 } // Parser will take care of every other string
 
-                statements.add(new Sense(senseType, fluid, var));
+                for (int i = 0; i < ctx.identifier().size(); i++) {
+                    Dimension[] dim = null;
+                    if (ctx.identifier(i).index().size() != 0) {
+                        dim = new Dimension[ctx.identifier(i).index().size()];
+                        for (int j = 0; j<ctx.identifier(i).index().size(); j++) {
+                            dim[j] = new Dimension(getExprValue(ctx.identifier(i).index(j).expr()));
+                        }
+                    }
+                    identifiers[i] = new Identifier(ctx.identifier(i).IDENTIFIER().getText(),dim);
+                }
+
+                statements.add(new Sense(senseType, identifiers[0], identifiers[1]));
             } else {
-                errors.add("ERROR: "+var+" is not a VAR");
+                errors.add("ERROR: "+ctx.identifier(1).IDENTIFIER().getText()+" is not a VAR");
             }
         } else {
-            errors.add("ERROR: "+fluid+" is not a FLUID");
+            errors.add("ERROR: "+ctx.identifier(0).IDENTIFIER().getText()+" is not a FLUID");
         }
     }
 
@@ -243,6 +247,17 @@ public class AntlrAquaListener extends AquaBaseListener {
         return errors;
     }
 
+    public Identifier getIdentifier(AquaParser.IdentifierContext identifierContext) {
+        Dimension[] dim = null;
+        if (identifierContext.index().size() != 0) {
+            dim = new Dimension[identifierContext.index().size()];
+            for (int j = 0; j<identifierContext.index().size(); j++) {
+                dim[j] = new Dimension(getExprValue(identifierContext.index(j).expr()));
+            }
+        }
+        return new Identifier(identifierContext.IDENTIFIER().getText(),dim);
+    }
+
     private void checkIsUniqueIdentifier(String id) {
         if (declarationsMapper.containsKey(id)) {
             errors.add("ERROR: " + id + " is not a unique declaration");
@@ -272,7 +287,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     }
 
     private List<Statement> appendStatementsIntoControlStatements(List<Statement> statements) {
-        // TODO: update identifier value
+        // TODO: update for loop index for every value inside
         List<Statement> newList = new ArrayList<>();
         while (!statements.isEmpty()) {
             Statement stmt = statements.get(0);
