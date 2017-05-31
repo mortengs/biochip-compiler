@@ -12,7 +12,7 @@ public class AnalyzerOptimizer {
     public List<Statement> resourceConstrainedListScheduling(List<Statement> statements, String[] constraints) {
         int time = 0;
         while (!statements.isEmpty()) {
-
+            
         }
         return null;
     }

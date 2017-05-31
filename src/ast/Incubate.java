@@ -5,6 +5,7 @@ package ast;
  */
 public class Incubate extends Statement {
     //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
+    private String identifier;
     private String assign;
     private Integer at;
     private Integer forvalue;
@@ -14,5 +15,21 @@ public class Incubate extends Statement {
         this.identifier = identifier;
         this.at = at;
         this.forvalue = forvalue;
+    }
+
+    public String getAssign() {
+        return assign;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public Integer getAt() {
+        return at;
+    }
+
+    public Integer getForvalue() {
+        return forvalue;
     }
 }

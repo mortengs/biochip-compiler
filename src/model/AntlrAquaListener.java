@@ -215,7 +215,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterFor_loop(AquaParser.For_loopContext ctx) {
-        statements.add(new ForLoop(ctx.IDENTIFIER().getText(), getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1)),null, true));
+        statements.add(new ForLoop(ctx.IDENTIFIER().getText(), getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1)), null, true));
     }
 
     @Override
@@ -272,6 +272,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     }
 
     private List<Statement> appendStatementsIntoControlStatements(List<Statement> statements) {
+        // TODO: update identifier value
         List<Statement> newList = new ArrayList<>();
         while (!statements.isEmpty()) {
             Statement stmt = statements.get(0);
@@ -289,7 +290,7 @@ public class AntlrAquaListener extends AquaBaseListener {
             if (stmt instanceof ForLoop) {
                 if (((ForLoop) stmt).getIsStart()) {
                     statements.remove(0);
-                    newList.add(new ForLoop(stmt.getIdentifier(), ((ForLoop) stmt).getFrom(), ((ForLoop) stmt).getTo(), appendStatementsIntoControlStatements(statements), false));
+                    newList.add(new ForLoop(((ForLoop) stmt).getIdentifier(), ((ForLoop) stmt).getFrom(), ((ForLoop) stmt).getTo(), appendStatementsIntoControlStatements(statements), false));
                     continue;
                 } else {
                     statements.remove(0);

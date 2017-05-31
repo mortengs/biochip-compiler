@@ -11,15 +11,20 @@ public class Synthesize {
         Statement stmt = IRWalker.walk(assay.getStatements());
         while(stmt != null) {
             if (stmt instanceof Repeat) {
-                System.out.println("Repeat");
+                Repeat repeat = (Repeat) stmt;
+                System.out.println("Repeat: "+repeat.getExpr()+", statements "+repeat.getStatements().size());
             } else if (stmt instanceof ForLoop) {
-                System.out.println("ForLoop");
+                ForLoop forLoop = (ForLoop) stmt;
+                System.out.println("ForLoop: "+forLoop.getIdentifier()+", from "+forLoop.getFrom()+", to "+forLoop.getTo()+", statements "+forLoop.getStatements().size());
             } else if (stmt instanceof Mix) {
-                System.out.println("Mix");
+                Mix mix = (Mix) stmt;
+                System.out.println("Mix: "+mix.getAssign()+", identifiers "+mix.getIdentifiers().length+", ratio "+mix.getRatio().length+", forvalue "+mix.getForvalue());
             } else if (stmt instanceof Incubate) {
-                System.out.println("Incubate");
+                Incubate incubate = (Incubate) stmt;
+                System.out.println("Incubate: "+incubate.getAssign()+", identifier "+incubate.getIdentifier()+ ", at "+incubate.getAt()+", for "+incubate.getForvalue());
             } else if (stmt instanceof Sense) {
-                System.out.println("Sense");
+                Sense sense = (Sense) stmt;
+                System.out.println("Sense: "+sense.getSenseType()+", from "+sense.getFrom()+ ", into "+sense.getInto());
             } else {
                 System.out.println("Doesn't exist");
             }

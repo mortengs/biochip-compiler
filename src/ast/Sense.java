@@ -20,4 +20,12 @@ public class Sense extends Statement {
     public SenseType getSenseType() {
         return senseType;
     }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getInto() {
+        return into;
+    }
 }

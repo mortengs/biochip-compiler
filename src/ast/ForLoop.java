@@ -8,6 +8,7 @@ import java.util.List;
 
 public class ForLoop extends ControlStatement {
     // 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR'
+    private String identifier;
     private Integer from;
     private Integer to;
     private List<Statement> statements;
@@ -35,5 +36,9 @@ public class ForLoop extends ControlStatement {
 
     public List<Statement> getStatements() {
         return statements;
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 }

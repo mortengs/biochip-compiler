@@ -19,4 +19,20 @@ public class Mix extends Statement {
         this.ratio = ratio;
         this.forvalue = forvalue;
     }
+
+    public String getAssign() {
+        return assign;
+    }
+
+    public String[] getIdentifiers() {
+        return identifiers;
+    }
+
+    public Integer[] getRatio() {
+        return ratio;
+    }
+
+    public Integer getForvalue() {
+        return forvalue;
+    }
 }
