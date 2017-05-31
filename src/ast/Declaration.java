@@ -12,4 +12,6 @@ public abstract class Declaration {
         return identifier;
     }
 
+    public void setIdentifier(String identifier) { this.identifier=identifier; }
+
 }

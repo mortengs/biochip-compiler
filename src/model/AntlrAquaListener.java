@@ -47,7 +47,7 @@ public class AntlrAquaListener extends AquaBaseListener {
         if (ctx.dimension() != null) {
             dimensions = new Dimension[ctx.dimension().size()];
             for (int i = 0; i < dimensions.length; i++) {
-                dimensions[i] = new Dimension(Integer.parseInt(ctx.dimension(i).getText().substring(1, ctx.dimension(i).getText().length()-1)));
+                dimensions[i] = new Dimension(Integer.parseInt(ctx.dimension(i).INTEGER().getText()));
             }
         }
 
@@ -83,7 +83,7 @@ public class AntlrAquaListener extends AquaBaseListener {
         if (ctx.dimension() != null) {
             dimensions = new Dimension[ctx.dimension().size()];
             for (int i = 0; i < dimensions.length; i++) {
-                dimensions[i] = new Dimension(Integer.parseInt(ctx.dimension(i).getText().substring(1, ctx.dimension(i).getText().length() - 1)));
+                dimensions[i] = new Dimension(Integer.parseInt(ctx.dimension(i).INTEGER().getText()));
             }
         }
         declarationsMapper.put(identifier, new Var(identifier,dimensions));
@@ -196,14 +196,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                 } // Parser will take care of every other string
 
                 for (int i = 0; i < ctx.identifier().size(); i++) {
-                    Dimension[] dim = null;
-                    if (ctx.identifier(i).index().size() != 0) {
-                        dim = new Dimension[ctx.identifier(i).index().size()];
-                        for (int j = 0; j<ctx.identifier(i).index().size(); j++) {
-                            dim[j] = new Dimension(getExprValue(ctx.identifier(i).index(j).expr()));
-                        }
-                    }
-                    identifiers[i] = new Identifier(ctx.identifier(i).IDENTIFIER().getText(),dim);
+                    identifiers[i] = getIdentifier(ctx.identifier(i));
                 }
 
                 statements.add(new Sense(senseType, identifiers[0], identifiers[1]));
@@ -255,7 +248,38 @@ public class AntlrAquaListener extends AquaBaseListener {
                 dim[j] = new Dimension(getExprValue(identifierContext.index(j).expr()));
             }
         }
+        checkDimensionBoundaries(new Identifier(identifierContext.IDENTIFIER().getText(),dim));
         return new Identifier(identifierContext.IDENTIFIER().getText(),dim);
+    }
+
+    public void checkDimensionBoundaries(Identifier identifier) {
+        if (identifier.getIdentifier().equals("it")) {
+            return;
+        }
+        Declaration decl = declarationsMapper.get(identifier.getIdentifier());
+        if (decl instanceof Var) {
+            if (identifier.getDimensions() == null) {
+                return;
+            }
+            for (int i = 0; i<identifier.getDimensions().length; i++) {
+                if (identifier.getDimensions()[i].getDimension() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
+                    errors.add("ERROR: "+identifier.getIdentifier()+" null index");
+                } else if (identifier.getDimensions()[i].getDimension() > ((Var) decl).getDimensions()[i].getDimension()) {
+                    errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
+                }
+            };
+        } else if (decl instanceof Fluid) {
+            if (identifier.getDimensions() == null) {
+                return;
+            }
+            for (int i = 0; i<identifier.getDimensions().length; i++) {
+                if (identifier.getDimensions()[i].getDimension() == null || ((Fluid) decl).getDimensions()[i].getDimension() == null) {
+                    errors.add("ERROR: "+identifier.getIdentifier()+" null index");
+                } else if (identifier.getDimensions()[i].getDimension() > ((Fluid) decl).getDimensions()[i].getDimension()) {
+                    errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
+                }
+            };
+        }
     }
 
     private void checkIsUniqueIdentifier(String id) {
