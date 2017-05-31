@@ -1,6 +1,5 @@
 package model;
 
-import ast.AssignFluid;
 import ast.ForLoop;
 import ast.Repeat;
 import ast.Statement;
@@ -11,7 +10,7 @@ import java.util.*;
  * Created by Jesper on 22/05/2017.
  */
 public final class IRWalker {
-    static Stack<Statement> stack = new Stack<>();
+    private static Stack<Statement> stack = new Stack<>();
 
     private IRWalker() { // private constructor
         stack = null;
@@ -28,7 +27,10 @@ public final class IRWalker {
         if(!stack.isEmpty()) {
             Statement stmt = stack.pop();
             if (stmt instanceof ForLoop || stmt instanceof Repeat) {
-                stack.addAll(loop(stmt));
+                List<Statement> innerStmts = loop(stmt);
+                for (int i = innerStmts.size()-1; i >= 0; i--) {
+                    stack.push(innerStmts.get(i));
+                }
             }
             return stmt;
         }

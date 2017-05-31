@@ -22,6 +22,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     private List<Statement> statements = new ArrayList<>();
     private Assay assay;
     private List<String> errors = new ArrayList<>();
+    private String assignFluid;
 
     @Override
     public void enterAssay(AquaParser.AssayContext ctx) {
@@ -102,7 +103,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterAssignFluid(AquaParser.AssignFluidContext ctx) {
         Declaration decl = declarationsMapper.get(ctx.identifier().getText());
         if (decl instanceof Fluid) {
-            statements.add(new AssignFluid(ctx.identifier().getText()));
+            assignFluid = ctx.identifier().getText();
         } else {
             System.out.println("ERROR: "+decl.getIdentifier()+" is not a FLUID");
         }
@@ -149,16 +150,9 @@ public class AntlrAquaListener extends AquaBaseListener {
         Integer forValue = ratioList.get(ratioList.size()-1);
         ratioList.remove(ratioList.size()-1);
 
-        // Check if the last statement was an assign instruction
-        Statement assign = null;
-        if (statements.size() > 0) {
-            assign = statements.get(statements.size()-1);
-        }
-
-        if (assign instanceof AssignFluid) {
-            // This assign now holds this mix instruction
-            statements.remove(assign);
-            statements.add(new Mix(assign.getIdentifier(), identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+        if (assignFluid != null) {
+            statements.add(new Mix(assignFluid, identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+            assignFluid = null;
         } else {
             statements.add(new Mix("it", identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
         }
@@ -183,16 +177,9 @@ public class AntlrAquaListener extends AquaBaseListener {
             // Save the fluids for when calling "it"
         }
 
-        // Check if the last statement was an assign instruction
-        Statement assign = null;
-        if (statements.size() > 0) {
-            assign = statements.get(statements.size()-1);
-        }
-
-        if (assign instanceof AssignFluid) {
-            // This assign now holds this instruction
-            statements.remove(assign);
-            statements.add(new Incubate(assign.getIdentifier(), identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+        if (assignFluid != null) {
+            statements.add(new Incubate(assignFluid, identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+            assignFluid = null;
         } else {
             statements.add(new Incubate("it", identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
         }
@@ -202,9 +189,9 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterSense(AquaParser.SenseContext ctx) {
         checkIsNameInitialized(ctx.identifier());
 
-        String fluid = ctx.identifier(0).getText();
+        String fluid = ctx.identifier(0).IDENTIFIER().getText();
         Declaration decl1 = declarationsMapper.get(fluid);
-        String var = ctx.identifier(1).getText();
+        String var = ctx.identifier(1).IDENTIFIER().getText();
         Declaration decl2 = declarationsMapper.get(var);
         if (decl1 instanceof Fluid || fluid.equals("it")) {
             if (decl2 instanceof Var) {
@@ -265,7 +252,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     private void checkIsNameInitialized(AquaParser.IdentifierContext id) {
         if (id.getText().equals("it")) {
             return;
-        } else if (!declarationsMapper.containsKey(id.getText())) {
+        } else if (!declarationsMapper.containsKey(id.IDENTIFIER().getText())) {
             errors.add("ERROR: " + id.getText() + " is not a declaration");
         }
     }
