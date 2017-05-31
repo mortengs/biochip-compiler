@@ -1,6 +1,7 @@
 package model;
 
 import ast.Assay;
+import ast.Statement;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -67,7 +68,6 @@ public class Main {
             for (String err: errs) {
                 System.err.println(ANSI_RED + err + ANSI_RESET);
             }
-            return;
         }
 
         Synthesize synthesizer = new Synthesize();

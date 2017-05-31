@@ -32,4 +32,8 @@ public class ForLoop extends ControlStatement {
     public Integer getTo() {
         return to;
     }
+
+    public List<Statement> getStatements() {
+        return statements;
+    }
 }

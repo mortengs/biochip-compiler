@@ -1,0 +1,24 @@
+ASSAY example START
+    FLUID f1;
+    FLUID f2;
+    FLUID f3;
+    FLUID f4;
+
+    VAR v1;
+    VAR v2;
+    VAR v3[4];
+
+    INPUT f1;
+    INPUT f2;
+    INPUT f3;
+
+    MIX f1 AND f2 AND f3 IN RATIOS 1 : 3 : 7 FOR 60;
+    INCUBATE it AT 75 FOR 15;
+    SENSE FLUORESCENCE it INTO v1;
+
+    f4 = MIX f1 AND f2 FOR 30;
+    FOR v2 FROM 1 TO 4 START
+        INCUBATE f4 AT 15*v2 FOR 30;
+        SENSE OPTICAL it INTO v3[v2];
+    ENDFOR
+END
