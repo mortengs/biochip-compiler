@@ -1,0 +1,10 @@
+ASSAY simple_mix START
+    FLUID fluid1;
+    FLUID fluid2;
+    FLUID fluid3;
+
+    INPUT fluid1;
+    INPUT fluid2;
+
+    fluid3 = MIX fluid1 AND fluid2 IN RATIOS 1 : 1 FOR 10;
+END

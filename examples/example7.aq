@@ -1,0 +1,38 @@
+ASSAY enzyme_test START
+    VAR inhibitor_diluent;
+    VAR enzyme_diluent;
+    VAR substrate_diluent;
+
+    FLUID Diluted_Inhibitor[4];
+    FLUID Diluted_Enzyme[4];
+    FLUID Diluted_Substrate[4];
+    FLUID inhibitor;
+    FLUID enzyme;
+    FLUID diluent;
+    FLUID substrate;
+    FLUID temp[4][4][4];
+
+    VAR i;
+    VAR j;
+    VAR k;
+    VAR RESULT[4][4][4];
+
+    INPUT inhibitor;
+    INPUT enzyme;
+    INPUT diluent;
+    INPUT substrate;
+
+    inhibitor_diluent = 1;
+    enzyme_diluent = 1;
+    substrate_diluent = 1;
+
+    FOR i FROM 1 TO 4 START
+        FOR j FROM 1 TO 4 START
+            FOR k FROM 1 TO 4 START
+                MIX Diluted_Inhibitor[i] AND Diluted_Enzyme[j] AND Diluted_Substrate[k] FOR 60;
+                INCUBATE it AT 37 FOR 300;
+                SENSE OPTICAL it INTO RESULT[i][j][k];
+            ENDFOR
+        ENDFOR
+    ENDFOR
+END

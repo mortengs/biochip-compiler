@@ -3,12 +3,9 @@ package model;
 import ast.Assay;
 
 import ast.*;
-import com.sun.xml.internal.bind.v2.model.core.ID;
-import org.antlr.v4.codegen.model.decl.Decl;
 import parser.AquaBaseListener;
 import parser.AquaParser;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -104,10 +101,9 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterAssignFluid(AquaParser.AssignFluidContext ctx) {
         Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Fluid) {
-            Fluid fluid = (Fluid) decl;
             assignFluid = getIdentifier(ctx.identifier());
         } else {
-            System.out.println("ERROR: "+decl.getIdentifier()+" is not a FLUID");
+            errors.add("ERROR: "+ctx.identifier().IDENTIFIER()+" is not a FLUID");
         }
     }
 
@@ -119,7 +115,7 @@ public class AntlrAquaListener extends AquaBaseListener {
             var.setValue(getExprValue(ctx.expr()));
             declarationsMapper.replace(var.getIdentifier(),var);
         } else {
-            System.out.println("ERROR: "+decl.getIdentifier()+" is not a VAR");
+            errors.add("ERROR: "+ctx.identifier().IDENTIFIER()+" is not a VAR");
         }
     }
 
@@ -134,11 +130,11 @@ public class AntlrAquaListener extends AquaBaseListener {
             identifiers[0] = new Identifier(ctx.identifier(0).IDENTIFIER().getText(), null);
         } else {
             for (int i = 0; i < ctx.identifier().size(); i++) {
-                Declaration decl = declarationsMapper.get(ctx.identifier(i).getText());
+                Declaration decl = declarationsMapper.get(ctx.identifier(i).IDENTIFIER().getText());
                 if (decl instanceof Fluid || ctx.identifier(i).IDENTIFIER().getText().equals("it")) {
                     identifiers[i] = getIdentifier(ctx.identifier(i));
                 } else {
-                    errors.add("ERROR: "+decl.getIdentifier()+" is not a FLUID");
+                    errors.add("ERROR: "+ctx.identifier(i).IDENTIFIER()+" is not a FLUID");
                 }
             }
         }
@@ -240,7 +236,7 @@ public class AntlrAquaListener extends AquaBaseListener {
         return errors;
     }
 
-    public Identifier getIdentifier(AquaParser.IdentifierContext identifierContext) {
+    private Identifier getIdentifier(AquaParser.IdentifierContext identifierContext) {
         Dimension[] dim = null;
         if (identifierContext.index().size() != 0) {
             dim = new Dimension[identifierContext.index().size()];
@@ -252,7 +248,7 @@ public class AntlrAquaListener extends AquaBaseListener {
         return new Identifier(identifierContext.IDENTIFIER().getText(),dim);
     }
 
-    public void checkDimensionBoundaries(Identifier identifier) {
+    private void checkDimensionBoundaries(Identifier identifier) {
         if (identifier.getIdentifier().equals("it")) {
             return;
         }
@@ -267,7 +263,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                 } else if (identifier.getDimensions()[i].getDimension() > ((Var) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
-            };
+            }
         } else if (decl instanceof Fluid) {
             if (identifier.getDimensions() == null) {
                 return;
@@ -278,7 +274,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                 } else if (identifier.getDimensions()[i].getDimension() > ((Fluid) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
-            };
+            }
         }
     }
 

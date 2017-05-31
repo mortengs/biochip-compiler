@@ -1,0 +1,30 @@
+ASSAY glucose_test START
+    FLUID Glucose WASH soap;
+    FLUID Reagent;
+    FLUID Sample;
+    FLUID a;
+    FLUID b;
+    FLUID c WASH h;
+    FLUID d WASH w;
+    FLUID e WASH x;
+    VAR Result[5];
+
+    INPUT Glucose;
+    INPUT Reagent 100;
+    INPUT Sample 120;
+
+    a = MIX Glucose AND Reagent IN RATIOS 1 : 1 FOR 10;
+    SENSE OPTICAL it INTO Result[1];
+
+    b = MIX Glucose AND Reagent IN RATIOS 1 : 2 FOR 10;
+    SENSE OPTICAL it INTO Result[2];
+
+    c = MIX Glucose AND Reagent IN RATIOS 1 : 4 FOR 10;
+    SENSE OPTICAL it INTO Result[3];
+
+    d = MIX Glucose AND Reagent IN RATIOS 1 : 8 FOR 10;
+    SENSE OPTICAL it INTO Result[4];
+
+    e = MIX Sample AND Reagent IN RATIOS 1 : 1 FOR 10;
+    SENSE OPTICAL it INTO Result[5];
+END

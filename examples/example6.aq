@@ -1,0 +1,11 @@
+ASSAY complex_mix START
+    FLUID a;
+    FLUID b;
+    FLUID c;
+
+    INPUT a;
+    INPUT b;
+    INPUT c;
+
+    MIX a AND b AND c IN RATIOS 2 : 5 : 6 FOR 10;
+END
