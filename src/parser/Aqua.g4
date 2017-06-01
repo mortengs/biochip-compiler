@@ -104,8 +104,6 @@ identifier
     : IDENTIFIER index*
     ;
 
-// TODO: Implement index expr solution
-
 index
     : '[' expr ']'
     ;

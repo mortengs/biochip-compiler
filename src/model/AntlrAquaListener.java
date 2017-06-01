@@ -20,6 +20,7 @@ public class AntlrAquaListener extends AquaBaseListener {
     private List<Statement> statements = new ArrayList<>();
     private Assay assay;
     private List<String> errors = new ArrayList<>();
+    private List<String> warnings = new ArrayList<>();
     private Identifier assignFluid;
 
     @Override
@@ -31,7 +32,9 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void exitAssay(AquaParser.AssayContext ctx) {
         checkIsInputAFluid();
         assay.setDeclarations(new ArrayList<>(declarationsMapper.values()));
-        assay.setStatements(appendStatementsIntoControlStatements(statements));
+        statements = appendStatementsIntoControlStatements(statements);
+        statements = removeLoops(statements);
+        assay.setStatements(statements);
     }
 
     /* DECLARATIONS */
@@ -111,9 +114,11 @@ public class AntlrAquaListener extends AquaBaseListener {
     public void enterAssignExpr(AquaParser.AssignExprContext ctx) {
         Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Var) {
-            Var var = (Var) decl;
-            var.setValue(getExprValue(ctx.expr()));
-            declarationsMapper.replace(var.getIdentifier(),var);
+            // Var var = (Var) decl;
+            Identifier identifier = getIdentifier(ctx.identifier());
+            //var.setValue(getExprValue(ctx.expr()));
+            // declarationsMapper.replace(var.getIdentifier(),var);
+            statements.add(new AssignExpr(identifier,ctx.expr()));
         } else {
             errors.add("ERROR: "+ctx.identifier().IDENTIFIER()+" is not a VAR");
         }
@@ -139,20 +144,20 @@ public class AntlrAquaListener extends AquaBaseListener {
             }
         }
 
-        List<Integer> ratioList = new ArrayList<>();
+        List<AquaParser.ExprContext> ratioList = new ArrayList<>();
 
         for (AquaParser.ExprContext expr: ctx.expr()) {
-            ratioList.add(getExprValue(expr));
+            ratioList.add(expr);
         }
 
-        Integer forValue = ratioList.get(ratioList.size()-1);
+        AquaParser.ExprContext forValue = ratioList.get(ratioList.size()-1);
         ratioList.remove(ratioList.size()-1);
 
         if (assignFluid != null) {
-            statements.add(new Mix(assignFluid, identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+            statements.add(new TempMix(assignFluid, identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
             assignFluid = null;
         } else {
-            statements.add(new Mix(new Identifier("it", null), identifiers, ratioList.toArray(new Integer[ratioList.size()]), forValue));
+            statements.add(new TempMix(new Identifier("it", null), identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
         }
     }
 
@@ -164,10 +169,10 @@ public class AntlrAquaListener extends AquaBaseListener {
         if (decl instanceof Fluid || ctx.identifier().IDENTIFIER().getText().equals("it")) {
             Identifier identifier = getIdentifier(ctx.identifier());
             if (assignFluid != null) {
-                statements.add(new Incubate(assignFluid, identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+                statements.add(new TempIncubate(assignFluid, identifier, ctx.expr(0), ctx.expr(1)));
                 assignFluid = null;
             } else {
-                statements.add(new Incubate(new Identifier("it", null), identifier, getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1))));
+                statements.add(new TempIncubate(new Identifier("it", null), identifier, ctx.expr(0), ctx.expr(1)));
             }
         } else {
             errors.add("ERROR: "+ctx.identifier().IDENTIFIER().getText()+" is not a FLUID");
@@ -208,7 +213,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterFor_loop(AquaParser.For_loopContext ctx) {
-        statements.add(new ForLoop(ctx.IDENTIFIER().getText(), getExprValue(ctx.expr(0)), getExprValue(ctx.expr(1)), null, true));
+        statements.add(new ForLoop(ctx.IDENTIFIER().getText(), ctx.expr(0), ctx.expr(1), null, true));
     }
 
     @Override
@@ -218,7 +223,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     @Override
     public void enterRepeat(AquaParser.RepeatContext ctx) {
-        statements.add(new Repeat(getExprValue(ctx.expr()), null, true));
+        statements.add(new Repeat(ctx.expr(), null, true));
     }
 
     @Override
@@ -236,16 +241,19 @@ public class AntlrAquaListener extends AquaBaseListener {
         return errors;
     }
 
+    public List<String> getWarnings() {
+        return warnings;
+    }
+
     private Identifier getIdentifier(AquaParser.IdentifierContext identifierContext) {
-        Dimension[] dim = null;
+        Index[] ind = null;
         if (identifierContext.index().size() != 0) {
-            dim = new Dimension[identifierContext.index().size()];
+            ind = new Index[identifierContext.index().size()];
             for (int j = 0; j<identifierContext.index().size(); j++) {
-                dim[j] = new Dimension(getExprValue(identifierContext.index(j).expr()));
+                ind[j] = new Index(identifierContext.index(j).expr());
             }
         }
-        checkDimensionBoundaries(new Identifier(identifierContext.IDENTIFIER().getText(),dim));
-        return new Identifier(identifierContext.IDENTIFIER().getText(),dim);
+        return new Identifier(identifierContext.IDENTIFIER().getText(),ind);
     }
 
     private void checkDimensionBoundaries(Identifier identifier) {
@@ -254,24 +262,24 @@ public class AntlrAquaListener extends AquaBaseListener {
         }
         Declaration decl = declarationsMapper.get(identifier.getIdentifier());
         if (decl instanceof Var) {
-            if (identifier.getDimensions() == null) {
+            if (identifier.getIndeces() == null) {
                 return;
             }
-            for (int i = 0; i<identifier.getDimensions().length; i++) {
-                if (identifier.getDimensions()[i].getDimension() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
+            for (int i = 0; i<identifier.getIndeces().length; i++) {
+                if (identifier.getIndeces()[i].getIndex() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
-                } else if (identifier.getDimensions()[i].getDimension() > ((Var) decl).getDimensions()[i].getDimension()) {
+                } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Var) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
             }
         } else if (decl instanceof Fluid) {
-            if (identifier.getDimensions() == null) {
+            if (identifier.getIndeces() == null) {
                 return;
             }
-            for (int i = 0; i<identifier.getDimensions().length; i++) {
-                if (identifier.getDimensions()[i].getDimension() == null || ((Fluid) decl).getDimensions()[i].getDimension() == null) {
+            for (int i = 0; i<identifier.getIndeces().length; i++) {
+                if (identifier.getIndeces()[i].getIndex() == null || ((Fluid) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
-                } else if (identifier.getDimensions()[i].getDimension() > ((Fluid) decl).getDimensions()[i].getDimension()) {
+                } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Fluid) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
             }
@@ -306,8 +314,9 @@ public class AntlrAquaListener extends AquaBaseListener {
         }
     }
 
+    /* Append all the statements within a loop into the loop object */
+    /* This is done to specify when the loop start and stops properly */
     private List<Statement> appendStatementsIntoControlStatements(List<Statement> statements) {
-        // TODO: update for loop index for every value inside
         List<Statement> newList = new ArrayList<>();
         while (!statements.isEmpty()) {
             Statement stmt = statements.get(0);
@@ -336,6 +345,68 @@ public class AntlrAquaListener extends AquaBaseListener {
             statements.remove(0);
             newList.add(stmt);
         }
+        return newList;
+    }
+
+    private HashMap<String, Integer> varMap = new HashMap<>();
+    /* Remove all the loops for the intermediate representation */
+    private List<Statement> removeLoops(List<Statement> statements) {
+        // TODO: update for loop index for every value inside
+        List<Statement> newList = new ArrayList<>();
+        for (Statement stmt : statements) {
+            if (stmt instanceof AssignExpr) {
+                varMap.put(((AssignExpr) stmt).getIdentifier().getIdentifier(),getExprValue(((AssignExpr) stmt).getExpr()));
+            } else if (stmt instanceof Repeat) {
+                Repeat repeat = (Repeat) stmt;
+                Integer numberOfIterations = getExprValue(repeat.getExpr());
+                if (numberOfIterations == null) {
+                    System.out.println("NOT SUPPOSED TO BE HERE");
+                    return null;
+                }
+                for (int i = 0; i < numberOfIterations; i++) {
+                    newList.addAll(removeLoops(repeat.getStatements()));
+                }
+            } else if (stmt instanceof ForLoop) {
+                ForLoop forLoop = (ForLoop) stmt;
+                Integer index = getExprValue(forLoop.getFrom());
+                Integer to = getExprValue(forLoop.getTo());
+                if (index == null || to == null) {
+                    System.out.println("NOT SUPPOSED TO BE HERE");
+                    return null;
+                } else if (to < index) {
+                    return null;
+                }
+                if (varMap.get(forLoop.getIdentifier()) != null) {
+                    warnings.add("WARNING: "+forLoop.getIdentifier()+" has already been initialized and will be overwritten in loop");
+                }
+                varMap.put(forLoop.getIdentifier(),index);
+                while (index <= to) {
+                    newList.addAll(removeLoops(forLoop.getStatements()));
+                    index++;
+                    varMap.put(forLoop.getIdentifier(),index);
+                }
+                varMap.remove(forLoop.getIdentifier());
+            } else if(stmt instanceof TempMix) {
+                TempMix tempMix = (TempMix) stmt;
+                Integer[] integers = new Integer[tempMix.ratio.length];
+                for (int j = 0; j < tempMix.ratio.length; j++) {
+                    integers[j] = getExprValue(tempMix.ratio[j]);
+                }
+                newList.add(new Mix(tempMix.assign,
+                        tempMix.identifiers,
+                        integers,
+                        getExprValue(tempMix.forvalue)));
+            } else if (stmt instanceof TempIncubate) {
+                TempIncubate tempIncubate = (TempIncubate) stmt;
+                newList.add(new Incubate(tempIncubate.assign,
+                        tempIncubate.identifier,
+                        getExprValue(tempIncubate.at),
+                        getExprValue(tempIncubate.forvalue)));
+            } else {
+                newList.add(stmt);
+            }
+        }
+
         return newList;
     }
 
@@ -386,11 +457,41 @@ public class AntlrAquaListener extends AquaBaseListener {
     }
 
     private Integer getVarExprValue(AquaParser.VarExprContext expr) {
-        Declaration decl = declarationsMapper.get(expr.identifier().getText());
-        if (decl == null) {
+        Integer var = varMap.get(expr.identifier().IDENTIFIER().getText());
+        if (var == null) {
             errors.add("ERROR: "+expr.identifier().getText()+" has not been declared");
             return null;
         }
-        return ((Var) decl).getValue();
+        return var;
+    }
+
+    private class TempIncubate extends Statement {
+        //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
+        Identifier identifier;
+        Identifier assign;
+        AquaParser.ExprContext at;
+        AquaParser.ExprContext forvalue;
+
+        public TempIncubate(Identifier assign, Identifier identifier, AquaParser.ExprContext at, AquaParser.ExprContext forvalue) {
+            this.assign = assign;
+            this.identifier = identifier;
+            this.at = at;
+            this.forvalue = forvalue;
+        }
+    }
+
+    private class TempMix extends Statement {
+        // 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
+        Identifier assign;
+        Identifier[] identifiers;
+        AquaParser.ExprContext[] ratio;
+        AquaParser.ExprContext forvalue;
+
+        public TempMix(Identifier assign, Identifier[] identifiers, AquaParser.ExprContext[] ratio, AquaParser.ExprContext forvalue) {
+            this.assign = assign;
+            this.identifiers = identifiers;
+            this.ratio = ratio;
+            this.forvalue = forvalue;
+        }
     }
 }

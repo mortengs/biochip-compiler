@@ -5,21 +5,21 @@ package ast;
  */
 public class Identifier {
     String identifier;
-    Dimension[] dimensions;
-    public Identifier(String identifier, Dimension[] dimensions) {
+    Index[] indices;
+    public Identifier(String identifier, Index[] indices) {
         this.identifier = identifier;
-        this.dimensions = dimensions;
+        this.indices = indices;
     }
 
     public String getIdentifier() {
         return identifier;
     }
 
-    public int getNumberOfDimensions() {
-        return dimensions.length;
+    public int getNumberOfIndeces() {
+        return indices.length;
     }
 
-    public Dimension[] getDimensions() {
-        return dimensions;
+    public Index[] getIndeces() {
+        return indices;
     }
 }

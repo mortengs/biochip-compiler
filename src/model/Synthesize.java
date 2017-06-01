@@ -25,6 +25,8 @@ public class Synthesize {
             } else if (stmt instanceof Sense) {
                 Sense sense = (Sense) stmt;
                 System.out.println("Sense: "+sense.getSenseType()+", from "+sense.getFrom().getIdentifier()+ ", into "+sense.getInto().getIdentifier());
+            } else if (stmt instanceof AssignExpr) {
+                System.out.println("AssignExpr: ");
             } else {
                 System.out.println("Doesn't exist");
             }

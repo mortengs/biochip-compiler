@@ -19,6 +19,7 @@ public class Main {
     private static final String VERSION = "v0.1";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
 
     public static void main(String args[]) throws Exception {
         File file;
@@ -62,12 +63,17 @@ public class Main {
 
         Assay assay = listener.getAssay();
         List<String> errs = listener.getErrors();
+        List<String> warnings = listener.getWarnings();
 
         if (errs.size() > 0) {
             for (String err: errs) {
                 System.err.println(ANSI_RED + err + ANSI_RESET);
             }
             return;
+        }
+
+        for (String warning: warnings) {
+            System.err.println(ANSI_YELLOW + warning + ANSI_RESET);
         }
 
         Synthesize synthesizer = new Synthesize();

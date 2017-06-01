@@ -1,5 +1,7 @@
 package ast;
 
+import parser.AquaParser;
+
 import java.util.List;
 
 /**
@@ -7,12 +9,12 @@ import java.util.List;
  */
 public class Repeat extends ControlStatement {
 
-    private Integer expr;
+    private AquaParser.ExprContext expr;
     private List<Statement> statements;
     // Used when creating the IR
     private boolean isStart;
 
-    public Repeat(Integer expr, List<Statement> statements, boolean isStart) {
+    public Repeat(AquaParser.ExprContext expr, List<Statement> statements, boolean isStart) {
         this.expr = expr;
         this.statements = statements;
         this.isStart = isStart;
@@ -22,7 +24,7 @@ public class Repeat extends ControlStatement {
         return isStart;
     }
 
-    public Integer getExpr() {
+    public AquaParser.ExprContext getExpr() {
         return expr;
     }
 

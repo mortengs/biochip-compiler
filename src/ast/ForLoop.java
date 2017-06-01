@@ -1,5 +1,7 @@
 package ast;
 
+import parser.AquaParser;
+
 import java.util.List;
 
 /**
@@ -9,12 +11,12 @@ import java.util.List;
 public class ForLoop extends ControlStatement {
     // 'FOR' IDENTIFIER 'FROM' expr 'TO' expr 'START' stmts 'ENDFOR'
     private String identifier;
-    private Integer from;
-    private Integer to;
+    private AquaParser.ExprContext from;
+    private AquaParser.ExprContext to;
     private List<Statement> statements;
     private boolean isStart;
 
-    public ForLoop(String identifier, Integer from, Integer to, List<Statement> statements, boolean isStart) {
+    public ForLoop(String identifier, AquaParser.ExprContext from, AquaParser.ExprContext to, List<Statement> statements, boolean isStart) {
         this.identifier = identifier;
         this.from = from;
         this.to = to;
@@ -26,11 +28,11 @@ public class ForLoop extends ControlStatement {
         return isStart;
     }
 
-    public Integer getFrom() {
+    public AquaParser.ExprContext getFrom() {
         return from;
     }
 
-    public Integer getTo() {
+    public AquaParser.ExprContext getTo() {
         return to;
     }
 

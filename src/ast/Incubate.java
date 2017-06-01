@@ -1,5 +1,7 @@
 package ast;
 
+import parser.AquaParser;
+
 /**
  * Created by Jesper on 15/03/2017.
  */
