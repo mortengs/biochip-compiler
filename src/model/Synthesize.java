@@ -6,10 +6,8 @@ import ast.*;
  * Created by Jesper on 22/05/2017.
  */
 public class Synthesize {
-
     public void synthesize(Assay assay) {
-        Statement stmt = IRWalker.walk(assay.getStatements());
-        while(stmt != null) {
+        for (Statement stmt : assay.getStatements()) {
             if (stmt instanceof Repeat) {
                 Repeat repeat = (Repeat) stmt;
                 System.out.println("Repeat: "+repeat.getExpr()+", statements "+repeat.getStatements().size());
@@ -30,8 +28,6 @@ public class Synthesize {
             } else {
                 System.out.println("Doesn't exist");
             }
-
-            stmt = IRWalker.walk();
         }
     }
 }

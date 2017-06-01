@@ -33,7 +33,8 @@ public class AntlrAquaListener extends AquaBaseListener {
         checkIsInputAFluid();
         assay.setDeclarations(new ArrayList<>(declarationsMapper.values()));
         statements = appendStatementsIntoControlStatements(statements);
-        statements = removeLoops(statements);
+        statements = runOverLoops(statements);
+        /* From this point the list contains evaluated expressions */
         assay.setStatements(statements);
     }
 
@@ -256,6 +257,12 @@ public class AntlrAquaListener extends AquaBaseListener {
         return new Identifier(identifierContext.IDENTIFIER().getText(),ind);
     }
 
+    private void checkDimensionBoundaries(Identifier[] identifiers) {
+        for (Identifier identifier : identifiers) {
+            checkDimensionBoundaries(identifier);
+        }
+    }
+
     private void checkDimensionBoundaries(Identifier identifier) {
         if (identifier.getIdentifier().equals("it")) {
             return;
@@ -266,6 +273,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                 return;
             }
             for (int i = 0; i<identifier.getIndeces().length; i++) {
+                System.out.println(identifier.getIdentifier());
                 if (identifier.getIndeces()[i].getIndex() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
                 } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Var) decl).getDimensions()[i].getDimension()) {
@@ -350,7 +358,7 @@ public class AntlrAquaListener extends AquaBaseListener {
 
     private HashMap<String, Integer> varMap = new HashMap<>();
     /* Remove all the loops for the intermediate representation */
-    private List<Statement> removeLoops(List<Statement> statements) {
+    private List<Statement> runOverLoops(List<Statement> statements) {
         // TODO: update for loop index for every value inside
         List<Statement> newList = new ArrayList<>();
         for (Statement stmt : statements) {
@@ -364,7 +372,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                     return null;
                 }
                 for (int i = 0; i < numberOfIterations; i++) {
-                    newList.addAll(removeLoops(repeat.getStatements()));
+                    newList.addAll(runOverLoops(repeat.getStatements()));
                 }
             } else if (stmt instanceof ForLoop) {
                 ForLoop forLoop = (ForLoop) stmt;
@@ -381,7 +389,7 @@ public class AntlrAquaListener extends AquaBaseListener {
                 }
                 varMap.put(forLoop.getIdentifier(),index);
                 while (index <= to) {
-                    newList.addAll(removeLoops(forLoop.getStatements()));
+                    newList.addAll(runOverLoops(forLoop.getStatements()));
                     index++;
                     varMap.put(forLoop.getIdentifier(),index);
                 }
@@ -392,17 +400,20 @@ public class AntlrAquaListener extends AquaBaseListener {
                 for (int j = 0; j < tempMix.ratio.length; j++) {
                     integers[j] = getExprValue(tempMix.ratio[j]);
                 }
+                checkDimensionBoundaries(tempMix.identifiers);
                 newList.add(new Mix(tempMix.assign,
                         tempMix.identifiers,
                         integers,
                         getExprValue(tempMix.forvalue)));
             } else if (stmt instanceof TempIncubate) {
                 TempIncubate tempIncubate = (TempIncubate) stmt;
+                checkDimensionBoundaries(tempIncubate.identifier);
                 newList.add(new Incubate(tempIncubate.assign,
                         tempIncubate.identifier,
                         getExprValue(tempIncubate.at),
                         getExprValue(tempIncubate.forvalue)));
             } else {
+                // TODO: Revisit dimensions to make them into an array and check whether the length is out of bounds
                 newList.add(stmt);
             }
         }
