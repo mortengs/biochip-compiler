@@ -1,6 +1,8 @@
 package model;
 
 import ast.Assay;
+import ast.Mix;
+import ast.Statement;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -64,6 +66,10 @@ public class Main {
         Assay assay = listener.getAssay();
         List<String> errs = listener.getErrors();
         List<String> warnings = listener.getWarnings();
+
+        IRSearchTree searchTree = new IRSearchTree(assay.getStatements());
+        IRSearchTree.Node< Statement> root = searchTree.root;
+        IRWalker.walk(root,0);
 
         if (errs.size() > 0) {
             for (String err: errs) {
