@@ -2,32 +2,87 @@ package model;
 
 import ast.*;
 
+import java.util.ArrayList;
+
+
 /**
  * Created by Jesper on 22/05/2017.
  */
 public class Synthesize {
-    public void synthesize(Assay assay) {
-        for (Statement stmt : assay.getStatements()) {
-            if (stmt instanceof Repeat) {
-                Repeat repeat = (Repeat) stmt;
-                System.out.println("Repeat: "+repeat.getExpr()+", statements "+repeat.getStatements().size());
-            } else if (stmt instanceof ForLoop) {
-                ForLoop forLoop = (ForLoop) stmt;
-                System.out.println("ForLoop: "+forLoop.getIdentifier()+", from "+forLoop.getFrom()+", to "+forLoop.getTo()+", statements "+forLoop.getStatements().size());
-            } else if (stmt instanceof Mix) {
-                Mix mix = (Mix) stmt;
-                System.out.println("Mix: "+mix.getAssign().getIdentifier()+", identifiers "+mix.getIdentifiers().length+", ratio "+mix.getRatio().length+", forvalue "+mix.getForvalue());
-            } else if (stmt instanceof Incubate) {
-                Incubate incubate = (Incubate) stmt;
-                System.out.println("Incubate: "+incubate.getAssign().getIdentifier()+", identifier "+incubate.getIdentifier().getIdentifier()+ ", at "+incubate.getAt()+", for "+incubate.getForvalue());
-            } else if (stmt instanceof Sense) {
-                Sense sense = (Sense) stmt;
-                System.out.println("Sense: "+sense.getSenseType()+", from "+sense.getFrom().getIdentifier()+ ", into "+sense.getInto().getIdentifier());
-            } else if (stmt instanceof AssignExpr) {
-                System.out.println("AssignExpr: ");
-            } else {
-                System.out.println("Doesn't exist");
+    StringBuilder str = new StringBuilder();
+
+    StringBuilder components = new StringBuilder().insert(0,"COMPONENT LIST:\n");
+    StringBuilder connections = new StringBuilder().insert(0,"CONNECTION LIST:\n");
+
+    int mixerCount = 0;
+    int heatCount = 0;
+    int detectorCount = 0;
+
+    ArrayList<IRSearchTree.Node<Statement>> map = new ArrayList<>();
+
+    public void synthesize(IRSearchTree.Node<Statement> root) {
+        visitNode(root);
+
+        connections.append("END LIST;\n");
+
+    }
+
+    public void visitNode(IRSearchTree.Node<Statement> node) {
+        if(node.isLeaf()) {
+
+            return;
+        } else {
+            for (IRSearchTree.Node<Statement> child: node.getChildren()) {
+                //Do this before going down
+
+                //Check to see if the parent is root
+                //If it is, create a source node
+                //---Since we are observing the root, do we need this?
+                for (IRSearchTree.Node<Statement> par : node.getParents()) {
+                    if(par.isRoot()) {
+
+                    }
+                }
+                if(!map.contains(node)) {
+                    createComponent(child);
+                    visitNode(child);
+                }
+                createConnection(node,child);
+
+                //This is done on the way back
+
             }
+            map.add(node);
+            //Add node to map, to show that all children have been visited
         }
+    }
+
+    private void createConnection(IRSearchTree.Node<Statement> node, IRSearchTree.Node<Statement> child) {
+        connections.append()
+    }
+
+    private void createComponent(IRSearchTree.Node<Statement> child) {
+        if(child.getData() instanceof Mix) {
+            addMixer();
+        } else if(child.getData() instanceof Incubate) {
+            addIncubator();
+        } else if(child.getData() instanceof Sense) {
+            addDetector();
+        }
+    }
+
+    private void addDetector() {
+        components.append("    det" + heatCount + " OF Detector;\n");
+        detectorCount++;
+    }
+
+    private void addIncubator() {
+        components.append("    heat" + heatCount + " OF Heater;\n");
+        heatCount++;
+    }
+
+    private void addMixer() {
+        components.append("    mix" + mixerCount + " OF Mixer;\n");
+        mixerCount++;
     }
 }
