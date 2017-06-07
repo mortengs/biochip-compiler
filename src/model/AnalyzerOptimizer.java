@@ -1,6 +1,7 @@
 package model;
 
 import ast.*;
+import components.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +13,13 @@ public class AnalyzerOptimizer {
 
 
     // TODO: LS algorithm
-    public List<Statement> resourceConstrainedListScheduling(List<Statement> statements, String[] constraints) {
+    public List<Statement> resourceConstrainedListScheduling(IRSearchTree.Node<Component> root, String[] constraints) {
         int time = 0;
         // TODO: Calculate the longest path
         // Find the end nodes, add time while doing so
         // Each node will have a specific time
-        while (!statements.isEmpty()) {
-
-        }
+        IRWalker walker = new IRWalker();
+        walker.getTimeForPath(root,null);
         // TODO:
         return null;
     }

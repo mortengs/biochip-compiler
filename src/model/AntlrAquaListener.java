@@ -3,6 +3,7 @@ package model;
 import ast.Assay;
 
 import ast.*;
+import components.Component;
 import parser.AquaBaseListener;
 import parser.AquaParser;
 
@@ -155,10 +156,10 @@ public class AntlrAquaListener extends AquaBaseListener {
         ratioList.remove(ratioList.size()-1);
 
         if (assignFluid != null) {
-            statements.add(new TempMix(assignFluid, identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
+            statements.add(new Mix(assignFluid, identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
             assignFluid = null;
         } else {
-            statements.add(new TempMix(new Identifier("it", null), identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
+            statements.add(new Mix(new Identifier("it", null), identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
         }
     }
 
@@ -170,10 +171,10 @@ public class AntlrAquaListener extends AquaBaseListener {
         if (decl instanceof Fluid || ctx.identifier().IDENTIFIER().getText().equals("it")) {
             Identifier identifier = getIdentifier(ctx.identifier());
             if (assignFluid != null) {
-                statements.add(new TempIncubate(assignFluid, identifier, ctx.expr(0), ctx.expr(1)));
+                statements.add(new Incubate(assignFluid, identifier, ctx.expr(0), ctx.expr(1)));
                 assignFluid = null;
             } else {
-                statements.add(new TempIncubate(new Identifier("it", null), identifier, ctx.expr(0), ctx.expr(1)));
+                statements.add(new Incubate(new Identifier("it", null), identifier, ctx.expr(0), ctx.expr(1)));
             }
         } else {
             errors.add("ERROR: "+ctx.identifier().IDENTIFIER().getText()+" is not a FLUID");
@@ -394,24 +395,24 @@ public class AntlrAquaListener extends AquaBaseListener {
                     varMap.put(forLoop.getIdentifier(),index);
                 }
                 varMap.remove(forLoop.getIdentifier());
-            } else if(stmt instanceof TempMix) {
-                TempMix tempMix = (TempMix) stmt;
-                Integer[] integers = new Integer[tempMix.ratio.length];
-                for (int j = 0; j < tempMix.ratio.length; j++) {
-                    integers[j] = getExprValue(tempMix.ratio[j]);
+            } else if(stmt instanceof Mix) {
+                Mix mix = (Mix) stmt;
+                Integer[] integers = new Integer[mix.getRatio().length];
+                for (int j = 0; j < mix.getRatio().length; j++) {
+                    integers[j] = getExprValue(mix.getRatio()[j]);
                 }
-                checkDimensionBoundaries(tempMix.identifiers);
-                newList.add(new Mix(tempMix.assign,
-                        tempMix.identifiers,
+                checkDimensionBoundaries(mix.getIdentifiers());
+                newList.add(new CalculatedMix(mix.getAssign(),
+                        mix.getIdentifiers(),
                         integers,
-                        getExprValue(tempMix.forvalue)));
-            } else if (stmt instanceof TempIncubate) {
-                TempIncubate tempIncubate = (TempIncubate) stmt;
-                checkDimensionBoundaries(tempIncubate.identifier);
-                newList.add(new Incubate(tempIncubate.assign,
-                        tempIncubate.identifier,
-                        getExprValue(tempIncubate.at),
-                        getExprValue(tempIncubate.forvalue)));
+                        getExprValue(mix.getForvalue())));
+            } else if (stmt instanceof Incubate) {
+                Incubate tempIncubate = (Incubate) stmt;
+                checkDimensionBoundaries(tempIncubate.getIdentifier());
+                newList.add(new CalculatedIncubate(tempIncubate.getAssign(),
+                        tempIncubate.getIdentifier(),
+                        getExprValue(tempIncubate.getAt()),
+                        getExprValue(tempIncubate.getForValue())));
             } else {
                 // TODO: Revisit dimensions to make them into an array and check whether the length is out of bounds
                 newList.add(stmt);
@@ -474,35 +475,5 @@ public class AntlrAquaListener extends AquaBaseListener {
             return null;
         }
         return var;
-    }
-
-    private class TempIncubate extends Statement {
-        //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
-        Identifier identifier;
-        Identifier assign;
-        AquaParser.ExprContext at;
-        AquaParser.ExprContext forvalue;
-
-        public TempIncubate(Identifier assign, Identifier identifier, AquaParser.ExprContext at, AquaParser.ExprContext forvalue) {
-            this.assign = assign;
-            this.identifier = identifier;
-            this.at = at;
-            this.forvalue = forvalue;
-        }
-    }
-
-    private class TempMix extends Statement {
-        // 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
-        Identifier assign;
-        Identifier[] identifiers;
-        AquaParser.ExprContext[] ratio;
-        AquaParser.ExprContext forvalue;
-
-        public TempMix(Identifier assign, Identifier[] identifiers, AquaParser.ExprContext[] ratio, AquaParser.ExprContext forvalue) {
-            this.assign = assign;
-            this.identifiers = identifiers;
-            this.ratio = ratio;
-            this.forvalue = forvalue;
-        }
     }
 }

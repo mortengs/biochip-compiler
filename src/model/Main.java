@@ -3,6 +3,7 @@ package model;
 import ast.Assay;
 import ast.Mix;
 import ast.Statement;
+import components.Component;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -68,8 +69,7 @@ public class Main {
         List<String> warnings = listener.getWarnings();
 
         IRSearchTree searchTree = new IRSearchTree(assay.getStatements());
-        IRSearchTree.Node< Statement> root = searchTree.root;
-        IRWalker.walk(root,0);
+        IRSearchTree.Node<Component> root = searchTree.root;
 
         if (errs.size() > 0) {
             for (String err: errs) {
@@ -82,8 +82,11 @@ public class Main {
             System.err.println(ANSI_YELLOW + warning + ANSI_RESET);
         }
 
+
+        AnalyzerOptimizer analyzerOptimizer = new AnalyzerOptimizer();
+        analyzerOptimizer.resourceConstrainedListScheduling(root,null);
         Synthesize synthesizer = new Synthesize();
-        synthesizer.synthesize(assay);
+        synthesizer.synthesize(root);
     }
 
     private static void stream(File file) throws IOException {

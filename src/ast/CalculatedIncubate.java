@@ -1,18 +1,16 @@
 package ast;
 
-import parser.AquaParser;
-
 /**
- * Created by Jesper on 15/03/2017.
+ * Created by Jesper on 07/06/2017.
  */
-public class Incubate extends Statement {
+public class CalculatedIncubate extends Statement {
     //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
     Identifier identifier;
     Identifier assign;
-    AquaParser.ExprContext at;
-    AquaParser.ExprContext forValue;
+    Integer at;
+    Integer forValue;
 
-    public Incubate(Identifier assign, Identifier identifier, AquaParser.ExprContext at, AquaParser.ExprContext forValue) {
+    public CalculatedIncubate(Identifier assign, Identifier identifier, Integer at, Integer forValue) {
         this.assign = assign;
         this.identifier = identifier;
         this.at = at;
@@ -27,11 +25,11 @@ public class Incubate extends Statement {
         return identifier;
     }
 
-    public AquaParser.ExprContext getAt() {
+    public Integer getAt() {
         return at;
     }
 
-    public AquaParser.ExprContext getForValue() {
+    public Integer getForValue() {
         return forValue;
     }
 }
