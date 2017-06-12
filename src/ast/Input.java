@@ -11,7 +11,7 @@ public class Input extends Declaration {
         this.input_integer = input_integer;
     }
 
-    public int getInput_integer() {
+    public Integer getInput_integer() {
         return input_integer;
     }
 }

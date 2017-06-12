@@ -1,9 +1,6 @@
 package model;
 
 import ast.*;
-import ast.Incubate;
-import ast.Mix;
-import ast.Sense;
 import components.*;
 
 import java.util.ArrayList;
@@ -19,26 +16,38 @@ public class IRSearchTree {
     Node<Component> root = new Node<Component>(null);
 
     /* Creating the search tree from a list of statements */
-    public IRSearchTree(List<Statement> statements) {
-        BuildSearchTree(statements);
+    public IRSearchTree(List<Declaration> declarations, List<Statement> statements) {
+        BuildSearchTree(declarations, statements);
     }
 
-    private void BuildSearchTree(List<Statement> statements) {
+    private void BuildSearchTree(List<Declaration> declarations, List<Statement> statements) {
         // TODO: Implement solution to dimensions
         HashMap<String, Node<Component>> fluidMap = new HashMap<>();
 
         /* it will always be overwritten for each statement */
         Identifier it = new Identifier("it",null);
 
+        // No fluid can be linked to root
+
+        // Add input as start for fluids
+        for (Declaration declaration : declarations) {
+            System.out.println(declaration);
+            if (declaration instanceof ast.Input) {
+                Node input = new Node<>(new components.Input(((ast.Input) declaration).getInput_integer()));
+                input.addParent(root);
+                fluidMap.put(declaration.getIdentifier(),input);
+            }
+        }
+
         /* Specifies at which depth the fluid is */
         for (Statement statement : statements) {
             // Remember at which depth a fluid is overwritten.
             // Check if assign is a fluid
             // else if assign is null.
-            if (statement instanceof CalculatedMix) {
-                Node mix = new Node<>(new components.Mix(((CalculatedMix) statement).getRatio(),((CalculatedMix) statement).getForvalue()));
-                Identifier assignedValue = ((CalculatedMix) statement).getAssign();
-                for (Identifier identifier : ((CalculatedMix) statement).getIdentifiers()) {
+            if (statement instanceof ast.Mix) {
+                Node mix = new Node<>(new components.Mix(((ast.Mix) statement).getRatio(),((ast.Mix) statement).getTime()));
+                Identifier assignedValue = ((ast.Mix) statement).getAssign();
+                for (Identifier identifier : ((ast.Mix) statement).getIdentifiers()) {
                     if (identifier.getIdentifier().equals(it.getIdentifier())) {
                         mix.addParent(fluidMap.get(it.getIdentifier()));
                     } else if (fluidMap.containsKey(identifier.getIdentifier())) {
@@ -49,10 +58,10 @@ public class IRSearchTree {
                 }
                 fluidMap.put(assignedValue.getIdentifier(),mix);
                 fluidMap.put(it.getIdentifier(),mix);
-            } else if (statement instanceof CalculatedIncubate) {
-                Node incubate = new Node<>(new components.Incubate(((CalculatedIncubate) statement).getAt(),((CalculatedIncubate) statement).getForValue()));
-                Identifier assignedValue = ((CalculatedIncubate) statement).getAssign();
-                Identifier identifier = ((CalculatedIncubate) statement).getIdentifier();
+            } else if (statement instanceof ast.Incubate) {
+                Node incubate = new Node<>(new components.Incubate(((ast.Incubate) statement).getTemperature(),((ast.Incubate) statement).getTime()));
+                Identifier assignedValue = ((ast.Incubate) statement).getAssign();
+                Identifier identifier = ((ast.Incubate) statement).getIdentifier();
                 if (identifier.getIdentifier().equals(it.getIdentifier())) {
                     incubate.addParent(fluidMap.get(it.getIdentifier()));
                 } else if (fluidMap.containsKey(identifier.getIdentifier())) {
@@ -62,9 +71,10 @@ public class IRSearchTree {
                 }
                 fluidMap.put(assignedValue.getIdentifier(),incubate);
                 fluidMap.put(it.getIdentifier(),incubate);
-            } else if (statement instanceof Sense) {
-                Node sense = new Node<>(statement);
-                Identifier identifier = ((Sense) statement).getFrom();
+            } else if (statement instanceof ast.Sense) {
+                // Since sense takes no time, one has to add physical constraints to it.
+                Node sense = new Node<>(new components.Sense(0));
+                Identifier identifier = ((ast.Sense) statement).getFrom();
                 if (identifier.getIdentifier().equals(it.getIdentifier())) {
                     sense.addParent(fluidMap.get(it.getIdentifier()));
                 } else if (fluidMap.containsKey(identifier.getIdentifier())) {

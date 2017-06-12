@@ -13,14 +13,16 @@ public class Mix extends Statement {
     // 'MIX' identifier ('AND' identifier)+ ('IN RATIOS' expr (':' expr)+)? 'FOR' expr
     Identifier assign;
     Identifier[] identifiers;
-    AquaParser.ExprContext[] ratio;
-    AquaParser.ExprContext forvalue;
+    AquaParser.ExprContext[] ratioExpr;
+    AquaParser.ExprContext timeExpr;
+    Integer[] ratio;
+    Integer time;
 
-    public Mix(Identifier assign, Identifier[] identifiers, AquaParser.ExprContext[] ratio, AquaParser.ExprContext forvalue) {
+    public Mix(Identifier assign, Identifier[] identifiers, AquaParser.ExprContext[] ratioExpr, AquaParser.ExprContext timeExpr) {
         this.assign = assign;
         this.identifiers = identifiers;
-        this.ratio = ratio;
-        this.forvalue = forvalue;
+        this.ratioExpr = ratioExpr;
+        this.timeExpr = timeExpr;
     }
 
     public Identifier getAssign() {
@@ -31,11 +33,27 @@ public class Mix extends Statement {
         return identifiers;
     }
 
-    public AquaParser.ExprContext[] getRatio() {
+    public AquaParser.ExprContext[] getRatioExpr() {
+        return ratioExpr;
+    }
+
+    public AquaParser.ExprContext getTimeExpr() {
+        return timeExpr;
+    }
+
+    public Integer[] getRatio() {
         return ratio;
     }
 
-    public AquaParser.ExprContext getForvalue() {
-        return forvalue;
+    public Integer getTime() {
+        return time;
+    }
+
+    public void setCalculatedTime(Integer time) {
+        this.time = time;
+    }
+
+    public void setCalculatedRatio(Integer[] ratio) {
+        this.ratio = ratio;
     }
 }

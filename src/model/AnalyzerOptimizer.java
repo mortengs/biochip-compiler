@@ -13,15 +13,18 @@ public class AnalyzerOptimizer {
 
 
     // TODO: LS algorithm
-    public List<Statement> resourceConstrainedListScheduling(IRSearchTree.Node<Component> root, String[] constraints) {
+    public IRSearchTree.Node<Component> resourceConstrainedListScheduling(IRSearchTree.Node<Component> root, String[] constraints) {
+        IRWalker walker = new IRWalker();
         int time = 0;
+        int longestTime = 0;
         // TODO: Calculate the longest path
         // Find the end nodes, add time while doing so
         // Each node will have a specific time
-        IRWalker walker = new IRWalker();
-        walker.getTimeForPath(root,null);
-        // TODO:
-        return null;
+        longestTime = walker.getTimeForPath(root,null);
+        //walker.getTimeForPath(root,null);
+        // TODO: implement the rest
+
+        return root;
     }
 
     // TODO: Solution to mixer ratio problem

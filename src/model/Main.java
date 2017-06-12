@@ -20,9 +20,9 @@ import java.util.List;
 public class Main {
 
     private static final String VERSION = "v0.1";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
 
     public static void main(String args[]) throws Exception {
         File file;
@@ -68,7 +68,7 @@ public class Main {
         List<String> errs = listener.getErrors();
         List<String> warnings = listener.getWarnings();
 
-        IRSearchTree searchTree = new IRSearchTree(assay.getStatements());
+        IRSearchTree searchTree = new IRSearchTree(assay.getDeclarations(),assay.getStatements());
         IRSearchTree.Node<Component> root = searchTree.root;
 
         if (errs.size() > 0) {

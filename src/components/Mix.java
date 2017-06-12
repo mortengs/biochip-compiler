@@ -9,7 +9,8 @@ public class Mix extends Component {
     private Integer time;
 
     public Mix(Integer[] ratio, Integer time) {
-
+        this.ratio = ratio;
+        this.time = time;
     }
 
     public Integer getTime() {

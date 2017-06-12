@@ -32,7 +32,9 @@ public class AntlrAquaListener extends AquaBaseListener {
     @Override
     public void exitAssay(AquaParser.AssayContext ctx) {
         checkIsInputAFluid();
-        assay.setDeclarations(new ArrayList<>(declarationsMapper.values()));
+        List<Declaration> declarations = new ArrayList<>(declarationsMapper.values());
+        declarations.addAll(inputs);
+        assay.setDeclarations(declarations);
         statements = appendStatementsIntoControlStatements(statements);
         statements = runOverLoops(statements);
         /* From this point the list contains evaluated expressions */
@@ -360,7 +362,6 @@ public class AntlrAquaListener extends AquaBaseListener {
     private HashMap<String, Integer> varMap = new HashMap<>();
     /* Remove all the loops for the intermediate representation */
     private List<Statement> runOverLoops(List<Statement> statements) {
-        // TODO: update for loop index for every value inside
         List<Statement> newList = new ArrayList<>();
         for (Statement stmt : statements) {
             if (stmt instanceof AssignExpr) {
@@ -397,22 +398,20 @@ public class AntlrAquaListener extends AquaBaseListener {
                 varMap.remove(forLoop.getIdentifier());
             } else if(stmt instanceof Mix) {
                 Mix mix = (Mix) stmt;
-                Integer[] integers = new Integer[mix.getRatio().length];
-                for (int j = 0; j < mix.getRatio().length; j++) {
-                    integers[j] = getExprValue(mix.getRatio()[j]);
+                Integer[] ratio = new Integer[mix.getRatioExpr().length];
+                for (int j = 0; j < mix.getRatioExpr().length; j++) {
+                    ratio[j] = getExprValue(mix.getRatioExpr()[j]);
                 }
                 checkDimensionBoundaries(mix.getIdentifiers());
-                newList.add(new CalculatedMix(mix.getAssign(),
-                        mix.getIdentifiers(),
-                        integers,
-                        getExprValue(mix.getForvalue())));
+                mix.setCalculatedRatio(ratio);
+                mix.setCalculatedTime(getExprValue(mix.getTimeExpr()));
+                newList.add(mix);
             } else if (stmt instanceof Incubate) {
-                Incubate tempIncubate = (Incubate) stmt;
-                checkDimensionBoundaries(tempIncubate.getIdentifier());
-                newList.add(new CalculatedIncubate(tempIncubate.getAssign(),
-                        tempIncubate.getIdentifier(),
-                        getExprValue(tempIncubate.getAt()),
-                        getExprValue(tempIncubate.getForValue())));
+                Incubate incubate = (Incubate) stmt;
+                checkDimensionBoundaries(incubate.getIdentifier());
+                incubate.setCalculatedTemperature(getExprValue(incubate.getTemperatureExpr()));
+                incubate.setCalculatedTime(getExprValue(incubate.getTimeExpr()));
+                newList.add(incubate);
             } else {
                 // TODO: Revisit dimensions to make them into an array and check whether the length is out of bounds
                 newList.add(stmt);

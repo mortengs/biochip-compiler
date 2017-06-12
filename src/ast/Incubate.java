@@ -9,14 +9,17 @@ public class Incubate extends Statement {
     //incubate: 'INCUBATE' IDENTIFIER 'AT' expr 'FOR' expr;
     Identifier identifier;
     Identifier assign;
-    AquaParser.ExprContext at;
-    AquaParser.ExprContext forValue;
+    AquaParser.ExprContext temperatureExpr;
+    AquaParser.ExprContext timeExpr;
+    Integer temperature;
+    Integer time;
 
-    public Incubate(Identifier assign, Identifier identifier, AquaParser.ExprContext at, AquaParser.ExprContext forValue) {
+
+    public Incubate(Identifier assign, Identifier identifier, AquaParser.ExprContext temperatureExpr, AquaParser.ExprContext timeExpr) {
         this.assign = assign;
         this.identifier = identifier;
-        this.at = at;
-        this.forValue = forValue;
+        this.temperatureExpr = temperatureExpr;
+        this.timeExpr = timeExpr;
     }
 
     public Identifier getAssign() {
@@ -27,11 +30,27 @@ public class Incubate extends Statement {
         return identifier;
     }
 
-    public AquaParser.ExprContext getAt() {
-        return at;
+    public AquaParser.ExprContext getTemperatureExpr() {
+        return temperatureExpr;
     }
 
-    public AquaParser.ExprContext getForValue() {
-        return forValue;
+    public AquaParser.ExprContext getTimeExpr() {
+        return timeExpr;
+    }
+
+    public Integer getTemperature() {
+        return temperature;
+    }
+
+    public Integer getTime() {
+        return time;
+    }
+
+    public void setCalculatedTemperature(Integer temperature) {
+        this.temperature = temperature;
+    }
+
+    public void setCalculatedTime(Integer time) {
+        this.time = time;
     }
 }
