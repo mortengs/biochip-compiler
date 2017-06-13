@@ -27,6 +27,7 @@ public class Main {
     public static void main(String args[]) throws Exception {
         File file;
         if (args.length > 0) {
+            // TODO: File with constraints? Or Aqua with constraints?
             switch (args[0]) {
                 case "help":
                     printHelp();
@@ -69,7 +70,7 @@ public class Main {
         List<String> warnings = listener.getWarnings();
 
         IRSearchTree searchTree = new IRSearchTree(assay.getDeclarations(),assay.getStatements());
-        IRSearchTree.Node<Component> root = searchTree.root;
+        Node<Statement> root = searchTree.root;
 
         if (errs.size() > 0) {
             for (String err: errs) {
@@ -82,11 +83,13 @@ public class Main {
             System.err.println(ANSI_YELLOW + warning + ANSI_RESET);
         }
 
+        // REMOVE THIS IN FUTURE. ONLY USED FOR DEBUGGING
+        Constraints constraints = new Constraints(0,2,2,2);
 
         AnalyzerOptimizer analyzerOptimizer = new AnalyzerOptimizer();
-        analyzerOptimizer.resourceConstrainedListScheduling(root,null);
+        analyzerOptimizer.resourceConstrainedListScheduling(root,constraints);
         Synthesize synthesizer = new Synthesize();
-        synthesizer.synthesize(root);
+        //synthesizer.synthesize(root);
     }
 
     private static void stream(File file) throws IOException {

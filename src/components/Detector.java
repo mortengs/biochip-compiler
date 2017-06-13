@@ -8,10 +8,11 @@ import java.util.List;
 /**
  * Created by Jesper on 07/06/2017.
  */
-public abstract class Component {
+public class Detector extends Component {
+
     private List<IntPair> timeSchedule;
 
-    public Component() {
+    public Detector() {
         timeSchedule = new ArrayList<>();
     }
 

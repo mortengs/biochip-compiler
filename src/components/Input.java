@@ -8,6 +8,7 @@ public class Input extends Component {
     private Integer port;
 
     public Input(Integer port) {
+        super();
         this.port = port;
     }
 }

@@ -276,7 +276,6 @@ public class AntlrAquaListener extends AquaBaseListener {
                 return;
             }
             for (int i = 0; i<identifier.getIndeces().length; i++) {
-                System.out.println(identifier.getIdentifier());
                 if (identifier.getIndeces()[i].getIndex() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
                 } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Var) decl).getDimensions()[i].getDimension()) {

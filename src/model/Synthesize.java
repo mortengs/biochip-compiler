@@ -18,27 +18,27 @@ public class Synthesize {
     int heatCount = 0;
     int detectorCount = 0;
 
-    ArrayList<IRSearchTree.Node<Component>> map = new ArrayList<>();
+    ArrayList<Node<Component>> map = new ArrayList<>();
 
-    public void synthesize(IRSearchTree.Node<Component> root) {
+    public void synthesize(Node<Component> root) {
         visitNode(root);
 
         connections.append("END LIST;\n");
 
     }
 
-    public void visitNode(IRSearchTree.Node<Component> node) {
+    public void visitNode(Node<Component> node) {
         if(node.isLeaf()) {
 
             return;
         } else {
-            for (IRSearchTree.Node<Component> child: node.getChildren()) {
+            for (Node<Component> child: node.getChildren()) {
                 //Do this before going down
 
                 //Check to see if the parent is root
                 //If it is, create a source node
                 //---Since we are observing the root, do we need this?
-                for (IRSearchTree.Node<Component> par : node.getParents()) {
+                for (Node<Component> par : node.getParents()) {
                     if(par.isRoot()) {
 
                     }
@@ -57,16 +57,16 @@ public class Synthesize {
         }
     }
 
-    private void createConnection(IRSearchTree.Node<Component> node, IRSearchTree.Node<Component> child) {
+    private void createConnection(Node<Component> node, Node<Component> child) {
         // connections.append();
     }
 
-    private void createComponent(IRSearchTree.Node<Component> child) {
-        if(child.getData() instanceof Mix) {
+    private void createComponent(Node<Component> child) {
+        if(child.getData() instanceof Mixer) {
             addMixer();
-        } else if(child.getData() instanceof Incubate) {
+        } else if(child.getData() instanceof Heater) {
             addIncubator();
-        } else if(child.getData() instanceof Sense) {
+        } else if(child.getData() instanceof Detector) {
             addDetector();
         }
     }
