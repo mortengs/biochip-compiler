@@ -19,7 +19,7 @@ public class AnalyzerOptimizer {
         for (Node node : componentMap.values()) {
             System.out.println(node.getData());
         }
-        //componentTree = buildSchematicDesign(statementTree,componentMap);
+        componentTree = buildSchematicDesign(statementTree,componentMap);
     }
 
     // TODO: Solution to mixer ratio problem
@@ -27,105 +27,8 @@ public class AnalyzerOptimizer {
 
     }
 
-    // TODO: LS algorithm
+    // LS algorithm
     public Map<Node,Node> resourceConstrainedListScheduling(Node<Statement> rootStatementTree, int longestTime) {
-//        IRWalker walker = new IRWalker();
-//        IntPair time = new IntPair(0,0);
-//        parentComponentTree = rootComponentTree;
-//        List<PathTime> pathTimes = walker.getAllPaths(rootStatementTree, constraints);
-//        // Calculate the longest path
-//        int longestTime = walker.getLongestPathTime(rootStatementTree, constraints);
-//        for (PathTime pathTime : pathTimes) {
-//            for (Node nodeStatementTree : pathTime.getPath()) {
-//                System.out.println("Operation: " + nodeStatementTree.getData() + ", number of components: " + usedComponents.size());
-//                if (!visited.contains(nodeStatementTree)) {
-//                    // Input just needs to be initialized to the root, which is easy
-//                    if (nodeStatementTree.getData() instanceof Input) {
-//                        time.startTime += constraints.inputDefaultTime;
-//                        // Initialize component
-//                        Node<Component> input = new Node<Component>(new components.Input(((Input) nodeStatementTree.getData()).getInput_integer()));
-//                        System.out.println(input);
-//                        // Parent is always root here.
-//                        input.addParent(parentComponentTree);
-//                    } else if (nodeStatementTree.getData() instanceof Mix) {
-//                        Node<Component>  mixer;
-//                        // Add the time it takes to do this operation
-//                        time.endTime += ((Mix) nodeStatementTree.getData()).getTime() + constraints.mixerDefaultTime;
-//                        // Index of all the components that can be used for this operation
-//                        List<Integer> indices = getIndex(usedComponents, components.Mixer.class);
-//                        // If there are no components
-//                        if (indices.isEmpty()) {
-//                            // Initialize component
-//                            mixer = new Node<Component>(new Mixer());
-//                            mixer.getData().addTime(time);
-//                            System.out.println(mixer.getData());
-//                            usedComponents.add(mixer);
-//                            // Add this component to the tree
-//                            // TODO: Move this into a new method where it also checks if this is already its parent
-//                            mixer.addParent(parentComponentTree);
-//                        } else {
-//                            // Used to break out of the search for a component
-//                            // Save the next closest time available for if no time slot was found at this time
-//                            boolean hasFoundAvailableComponent = false;
-//                            for (Integer integer : indices) {
-//                                mixer = usedComponents.get(integer);
-//                                for (IntPair timePair : mixer.getData().getTimeSchedule()) {
-//                                    if (hasAvailableTimeSlot(timePair,time)) {
-//                                        hasFoundAvailableComponent = true;
-//                                        mixer.getData().addTime(time);
-//                                        mixer.addParent(parentComponentTree);
-//                                        break;
-//                                    }
-//                                }
-//                                if (hasFoundAvailableComponent) {
-//                                    break;
-//                                }
-//                            }
-//                            if (!hasFoundAvailableComponent) {
-//                                // Get the component closest to this
-//                            }
-//                            // run over all the components in the list. Check for the right component
-//                            // If the component has a time slot available, then use the component
-//                            // If there are no more available components, then make a new one.
-//                            // If this is not possible give the user an warning and assign a new component.
-//                        }
-//                    } else if (nodeStatementTree.getData() instanceof Incubate) {
-//                        time.endTime += ((Incubate) nodeStatementTree.getData()).getTime() + constraints.heaterDefaultTime;
-//                        List<Integer> indices = getIndex(usedComponents, components.Heater.class);
-//                        if (indices.isEmpty()) {
-//                            // Initialize component
-//                            Node<Component> heater = new Node<Component>(new Heater());
-//                            heater.getData().addTime(time);
-//                            System.out.println(heater);
-//                            usedComponents.add(heater);
-//                        } else {
-//                        }
-//                    } else if (nodeStatementTree.getData() instanceof Sense) {
-//                        time.startTime += constraints.detectorDefaultTime;
-//                        List<Integer> indices = getIndex(usedComponents, components.Detector.class);
-//                        if (indices.isEmpty()) {
-//                            // Initialize component
-//                            Node<Component> detector = new Node<Component>(new Detector());
-//                            detector.getData().addTime(time);
-//                            System.out.println(detector);
-//                            usedComponents.add(detector);
-//                        } else {
-//                        }
-//                    } else {
-//                        System.out.println("Why am I here?");
-//                    }
-//                    visited.add(nodeStatementTree);
-//                    System.out.println("Start time: "+time.startTime+", End time: "+time.endTime);
-//                }
-//                time.startTime += (time.endTime-time.startTime);
-//            }
-//            // The path has been traversed. Now reset time, since we're back at root
-//            time.startTime = 0;
-//            time.endTime = 0;
-//            parentComponentTree = rootComponentTree;
-//        }
-//        assignComponents();
-
         // List of all the used components
         List<Node> usedComponents = new ArrayList<>();
         // Queue of statements
@@ -156,27 +59,16 @@ public class AnalyzerOptimizer {
             statementQueue.addAll(children);
 
             if (node.getData() instanceof ast.Input) {
-                components.Input input = new components.Input(((ast.Input) node.getData()).getInput_integer());
-                input.addTime(DefaultValues.getInputDefaultTime());
-                componentMap.put(node,new Node(input));
+                assignInput(node,componentMap);
                 System.out.println("This input: " + node.getData());
             } else if (node.getData() instanceof Incubate) {
                 assignHeater(node,usedComponents,componentMap,longestTime);
+                System.out.println("This incubator: " + node.getData());
             } else if (node.getData() instanceof Mix) {
-                Mixer mixer = new Mixer();
-
-                if (((Mix) node.getData()).getTime() != null) {
-                    mixer.addTime(((Mix) node.getData()).getTime());
-                } else {
-                    mixer.addTime(DefaultValues.getMixerDefaultTime());
-                }
-
-                componentMap.put(node,new Node(mixer));
+                assignMixer(node,usedComponents,componentMap,longestTime);
                 System.out.println("This mix: " + node.getData());
             } else if (node.getData() instanceof Sense) {
-                Detector detector = new Detector();
-                detector.addTime(DefaultValues.getDetectorDefaultTime());
-                componentMap.put(node,new Node(detector));
+                assignDetector(node,usedComponents,componentMap,longestTime);
                 System.out.println("This sense: " + node.getData());
             } else {
                 // Implement filter.
@@ -186,7 +78,7 @@ public class AnalyzerOptimizer {
         return componentMap;
     }
 
-    // This algorithm combines all the directions for the component tree.
+    // This algorithm combines all the directions of the component tree.
     public Node<Component> buildSchematicDesign(Node<Statement> rootStatementTree, Map<Node,Node> componentMap) {
         Node<Output> outputNode = new Node(new Output());
         Node<Component> root = new Node<Component>(null);
@@ -202,26 +94,35 @@ public class AnalyzerOptimizer {
                     statementQueue.add((Node) node.getChildren().get(i));
                 }
             }
-            // For each node. Set the parents of the component
-            Node<Component> componentNode = componentMap.get(node);
+
+            if (node.getData() == null) {
+                System.out.println("root");
+                continue;
+            }
+
+            System.out.println("Node: "+componentMap.get(node).getData());
+
+            // For each node. Set the children of the component
+            Node componentNode = componentMap.get(node);
             for (int i = 0; i < node.getChildren().size(); i++) {
                 // If the node hasn't set this component to be it's child
                 if (!componentNode.getChildren().contains(componentMap.get(node.getChildren().get(i)))) {
+                    System.out.println("Child: "+((Node) node.getChildren().get(i)).getData());
                     componentNode.addChild(componentMap.get(node.getChildren().get(i)));
                 }
             }
 
             // If the node is a leaf then direct to output
-            if (node.isLeaf()) {
+            if (node.isLeaf() && !componentMap.get(node).getChildren().contains(outputNode)) {
                 componentMap.get(node).addChild(outputNode);
             }
 
             // If the node is an input then direct the root to this
             if (node.getData() instanceof ast.Input) {
-                root.addChild(componentMap.get(node.getData()));
+                root.addChild(componentMap.get(node));
             }
         }
-        return null;
+        return root;
     }
 
     public Node<Component> getComponentTree() {
@@ -257,55 +158,159 @@ public class AnalyzerOptimizer {
 
             usedComponents.add(heater);
             componentMap.put(node,heater);
-            System.out.println("Adding heater: " + heater.getData());
         } else {
             boolean isGoingOverUgerncy = false;
             // Loop over all the components
             for (Integer index : indices) {
                 // Find a component that isn't going over the urgency limit
                 if (((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime() <= time) {
-                    System.out.println("Found heater: " + usedComponents.get(index).getData() + ", with time: "+(((Incubate) node.getData()).getTime()+((Heater) usedComponents.get(index).getData()).getTime()));
+                    isGoingOverUgerncy = false;
+                    //System.out.println("Time: "+(((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime()));
                     heater = usedComponents.get(index);
                     ((Heater) usedComponents.get(index).getData()).addTime(((Incubate) node.getData()).getTime());
                     componentMap.put(node,heater);
                     // If all the components are going over the urgency limit, create a new component
-                } else if (indices.size() < Constraints.getNumberOfHeaters()) {
+                } else {
+                    isGoingOverUgerncy = true;
+                }
+            }
+
+            // Going over the urgency limit with the shortest time possible
+            if (isGoingOverUgerncy) {
+                if (indices.size() < Constraints.getNumberOfHeaters()) {
                     if (((Incubate) node.getData()).getTime() != null) {
                         heater.getData().addTime(((Incubate) node.getData()).getTime());
                     } else {
                         heater.getData().addTime(DefaultValues.getHeaterDefaultTime());
                     }
-                    System.out.println("Time is: "+(((Incubate) node.getData()).getTime()+((Heater) usedComponents.get(index).getData()).getTime())+", adding new heater: "+heater.getData());
                     usedComponents.add(heater);
-                    componentMap.put(node,heater);
+                    componentMap.put(node, heater);
                     // All available components have been allocated and the urgency limit has been reached
+                } else {
+                    int shortestTime = 0;
+                    // Find the shortest time;
+                    for (Integer index : indices) {
+                        if (((Heater) usedComponents.get(index).getData()).getTime() > shortestTime) {
+                            heater = usedComponents.get(index);
+                            shortestTime = ((Heater) usedComponents.get(index).getData()).getTime();
+                        }
+                    }
+                    // The shortest time heater will be added.
+                    componentMap.put(node, heater);
+                }
+            }
+        }
+    }
+
+    private void assignMixer(Node node, List<Node> usedComponents, Map<Node,Node> componentMap, int time) {
+        Node<Mixer> mixer = new Node(new Mixer());
+        List<Integer> indices = getIndex(usedComponents, components.Mixer.class);
+
+        // Initialize the first component. After this we know that there always is a component
+        if (indices.isEmpty()) {
+            if (((Mix) node.getData()).getTime() != null) {
+                mixer.getData().addTime(((Mix) node.getData()).getTime());
+            } else {
+                mixer.getData().addTime(DefaultValues.getMixerDefaultTime());
+            }
+
+            usedComponents.add(mixer);
+            componentMap.put(node,mixer);
+        } else {
+            boolean isGoingOverUgerncy = false;
+            // Loop over all the components
+            for (Integer index : indices) {
+                // Find a component that isn't going over the urgency limit
+                if (((Mixer) usedComponents.get(index).getData()).getTime()+((Mix) node.getData()).getTime() <= time) {
+                    isGoingOverUgerncy = false;
+                    //System.out.println("Time: "+(((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime()));
+                    mixer = usedComponents.get(index);
+                    ((Mixer) usedComponents.get(index).getData()).addTime(((Mix) node.getData()).getTime());
+                    componentMap.put(node,mixer);
+                    // If all the components are going over the urgency limit, create a new component
                 } else {
                     isGoingOverUgerncy = true;
                 }
             }
+
             // Going over the urgency limit with the shortest time possible
             if (isGoingOverUgerncy) {
-                int shortestTime = 0;
-                // Find the shortest time;
-                for (Integer index : indices) {
-                    if (((Heater) usedComponents.get(index).getData()).getTime() > shortestTime) {
-                        heater = usedComponents.get(index);
-                        shortestTime = ((Heater) usedComponents.get(index).getData()).getTime();
+                if (indices.size() < Constraints.getNumberOfMixers()) {
+                    if (((Mix) node.getData()).getTime() != null) {
+                        mixer.getData().addTime(((Mix) node.getData()).getTime());
+                    } else {
+                        mixer.getData().addTime(DefaultValues.getMixerDefaultTime());
                     }
+                    usedComponents.add(mixer);
+                    componentMap.put(node, mixer);
+                    // All available components have been allocated and the urgency limit has been reached
+                } else {
+                    int shortestTime = 0;
+                    // Find the shortest time;
+                    for (Integer index : indices) {
+                        if (((Mixer) usedComponents.get(index).getData()).getTime() > shortestTime) {
+                            mixer = usedComponents.get(index);
+                            shortestTime = ((Mixer) usedComponents.get(index).getData()).getTime();
+                        }
+                    }
+                    // The shortest time heater will be added.
+                    componentMap.put(node, mixer);
                 }
-                System.out.println("Going over time limit: "+heater.getData()+", with time: "+ heater.getData().getTime());
-                // The shortest time heater will be added.
-                componentMap.put(node,heater);
             }
         }
-
     }
 
-    private void AssignMixer() {
-
+    private void assignInput(Node node, Map<Node,Node> componentMap) {
+        components.Input input = new components.Input(((ast.Input) node.getData()).getInput_integer());
+        input.addTime(DefaultValues.getInputDefaultTime());
+        componentMap.put(node,new Node(input));
     }
 
-    private void assignLongestPath() {
+    private void assignDetector(Node node, List<Node> usedComponents, Map<Node,Node> componentMap, int time) {
+        Node<Detector> detector = new Node(new Detector());
+        List<Integer> indices = getIndex(usedComponents, components.Detector.class);
 
+        // Initialize the first component. After this we know that there always is a component
+        if (indices.isEmpty()) {
+            detector.getData().addTime(DefaultValues.getDetectorDefaultTime());
+            usedComponents.add(detector);
+            componentMap.put(node,detector);
+        } else {
+            boolean isGoingOverUgerncy = false;
+            // Loop over all the components
+            for (Integer index : indices) {
+                // Find a component that isn't going over the urgency limit
+                if (((Detector) usedComponents.get(index).getData()).getTime() <= time) {
+                    isGoingOverUgerncy = false;
+                    detector = usedComponents.get(index);
+                    ((Detector) usedComponents.get(index).getData()).addTime(DefaultValues.getDetectorDefaultTime());
+                    componentMap.put(node,detector);
+                    // If all the components are going over the urgency limit, create a new component
+                } else {
+                    isGoingOverUgerncy = true;
+                }
+            }
+
+            // Going over the urgency limit with the shortest time possible
+            if (isGoingOverUgerncy) {
+                if (indices.size() < Constraints.getNumberOfDetectors()) {
+                    detector.getData().addTime(DefaultValues.getDetectorDefaultTime());
+                    usedComponents.add(detector);
+                    componentMap.put(node, detector);
+                    // All available components have been allocated and the urgency limit has been reached
+                } else {
+                    int shortestTime = 0;
+                    // Find the shortest time;
+                    for (Integer index : indices) {
+                        if (((Detector) usedComponents.get(index).getData()).getTime() > shortestTime) {
+                            detector = usedComponents.get(index);
+                            shortestTime = ((Detector) usedComponents.get(index).getData()).getTime();
+                        }
+                    }
+                    // The shortest time heater will be added.
+                    componentMap.put(node, detector);
+                }
+            }
+        }
     }
 }

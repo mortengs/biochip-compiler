@@ -9,7 +9,6 @@ final class Constraints {
     private static int numberOfMixers = 2;
     private static int numberOfDetectors = 2;
 
-    // TODO: Maybe add a buffer time just to be sure
     private Constraints() {
 
     }
@@ -28,5 +27,21 @@ final class Constraints {
 
     static int getNumberOfDetectors() {
         return numberOfDetectors;
+    }
+
+    static void setNumberOfFilters(int filters) {
+        numberOfFilters = filters;
+    }
+
+    static void setNumberOfHeaters(int heaters) {
+        numberOfHeaters = heaters;
+    }
+
+    static void setNumberOfMixers(int mixers) {
+        numberOfMixers = mixers;
+    }
+
+    static void setNumberOfDetectors(int detectors) {
+        numberOfDetectors = detectors;
     }
 }
