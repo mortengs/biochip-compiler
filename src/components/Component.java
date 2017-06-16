@@ -9,17 +9,18 @@ import java.util.List;
  * Created by Jesper on 07/06/2017.
  */
 public abstract class Component {
-    private List<IntPair> timeSchedule;
+
+    int time;
 
     public Component() {
-        timeSchedule = new ArrayList<>();
+        time = 0;
     }
 
-    public List<IntPair> getTimeSchedule() {
-        return timeSchedule;
+    public int getTime() {
+        return time;
     }
 
-    public void addTime(IntPair time) {
-        timeSchedule.add(time);
+    public void addTime(int time) {
+        this.time += time;
     }
 }

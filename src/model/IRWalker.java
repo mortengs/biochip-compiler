@@ -11,61 +11,55 @@ import java.util.List;
  */
 public class IRWalker {
 
-    private Constraints constraints;
     private List<Node<Statement>> path;
     private List<PathTime> paths;
-    private List<Node<Statement>> longestPath;
     private int longestPathTime;
 
     public IRWalker() {
         longestPathTime = 0;
         path = new ArrayList<>();
         paths = new ArrayList<>();
-        longestPath = new ArrayList<>();
     }
 
-    // Used for debug, if you want to see the entire tree (with duplicates)
-    public void walkOverTree(Node<Statement> node, int depth) {
-        System.out.println("This node: " + node.getData() + ", depth: " + depth);
-        depth++;
-        for (Node<Statement> child : node.getChildren()) {
-            walkOverTree(child, depth);
-        }
-    }
-
-    public List<PathTime> getAllPaths(Node<Statement> root, Constraints constraints) {
-        if (paths.isEmpty()) {
-            getAllPaths(root, 0);
-        }
-        paths.sort(Comparator.comparing(PathTime::getTime).reversed());
-        return paths;
-    }
-
-    public List<Node<Statement>> getLongestPath(Node<Statement> root, Constraints constraints) {
-        if (longestPath.isEmpty()) {
-            getAllPaths(root, 0);
-        }
-        return longestPath;
-    }
-
-    public int getLongestPathTime(Node<Statement> root, Constraints constraints) {
-        this.constraints = constraints;
+    public int getLongestPathTime(Node<Statement> root) {
         if (longestPathTime != 0) {
             return longestPathTime;
         } else {
             getAllPaths(root, 0);
+            for (PathTime pathtime : paths) {
+                if (pathtime.getTime() > longestPathTime) {
+                    path = pathtime.getPath();
+                    longestPathTime = pathtime.getTime();
+                }
+            }
+            for (Node node : path) {
+                node.setUrgency(true);
+            }
             return longestPathTime;
         }
     }
 
-    private int getTime(Node<Statement> node) {
+    private int getTime(Node node) {
         // TODO: Manage constraints and additional time for operations and moving between them
         if (node.getData() instanceof Mix) {
-            return ((Mix) node.getData()).getTime();
+            if (((Mix) node.getData()).getTime() != null) {
+                return ((Mix) node.getData()).getTime();
+            } else {
+                // Applying default time, since none was given
+                return DefaultValues.getMixerDefaultTime();
+            }
         } else if (node.getData() instanceof Incubate) {
-            return ((Incubate) node.getData()).getTime();
+            if (((Incubate) node.getData()).getTemperature() != null) {
+                return ((Incubate) node.getData()).getTime();
+            } else {
+                // Applying default time, since none was given
+                return DefaultValues.getHeaterDefaultTime();
+            }
+        } else if (node.getData() instanceof Sense) {
+            return DefaultValues.getDetectorDefaultTime();
+        } else if (node.getData() instanceof Input){
+            return DefaultValues.getInputDefaultTime();
         } else {
-            // Detector
             return 0;
         }
     }
@@ -76,10 +70,6 @@ public class IRWalker {
             List<Node<Statement>> savedList = new ArrayList<>();
             savedList.addAll(path);
             paths.add(new PathTime(time,savedList));
-            if (time > longestPathTime) {
-                longestPathTime = time;
-                longestPath.addAll(path);
-            }
             path.remove(node);
         } else {
             for (Node<Statement> child : node.getChildren()) {
@@ -89,4 +79,23 @@ public class IRWalker {
             }
         }
     }
+
+    private class PathTime {
+        private int time;
+        private List<Node<Statement>> path;
+
+        public PathTime(int time, List<Node<Statement>> path) {
+            this.time = time;
+            this.path = path;
+        }
+
+        public int getTime() {
+            return time;
+        }
+
+        public List<Node<Statement>> getPath() {
+            return path;
+        }
+    }
+
 }

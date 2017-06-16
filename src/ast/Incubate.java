@@ -22,6 +22,13 @@ public class Incubate extends Statement {
         this.timeExpr = timeExpr;
     }
 
+    public Incubate(Identifier assign, Identifier identifier, Integer temperature, Integer time) {
+        this.assign = assign;
+        this.identifier = identifier;
+        this.temperature = temperature;
+        this.time = time;
+    }
+
     public Identifier getAssign() {
         return assign;
     }
@@ -46,11 +53,4 @@ public class Incubate extends Statement {
         return time;
     }
 
-    public void setCalculatedTemperature(Integer temperature) {
-        this.temperature = temperature;
-    }
-
-    public void setCalculatedTime(Integer time) {
-        this.time = time;
-    }
 }

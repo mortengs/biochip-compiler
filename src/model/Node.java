@@ -10,6 +10,7 @@ public class Node<T> {
     private List<Node<T>> children = new ArrayList<>();
     private List<Node<T>> parents = new ArrayList<>();
     private T data = null;
+    private boolean isUrgent = false;
 
     public Node(T data) {
         this.data = data;
@@ -59,5 +60,13 @@ public class Node<T> {
             return true;
         else
             return false;
+    }
+
+    public boolean getUrgency() {
+        return isUrgent;
+    }
+
+    public void setUrgency(boolean urgency) {
+        this.isUrgent = urgency;
     }
 }

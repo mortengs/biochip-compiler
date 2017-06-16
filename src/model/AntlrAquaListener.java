@@ -38,6 +38,9 @@ public class AntlrAquaListener extends AquaBaseListener {
         statements = appendStatementsIntoControlStatements(statements);
         statements = runOverLoops(statements);
         /* From this point the list contains evaluated expressions */
+        for (Statement stmt : statements) {
+
+        }
         assay.setStatements(statements);
     }
 
@@ -396,21 +399,18 @@ public class AntlrAquaListener extends AquaBaseListener {
                 }
                 varMap.remove(forLoop.getIdentifier());
             } else if(stmt instanceof Mix) {
-                Mix mix = (Mix) stmt;
-                Integer[] ratio = new Integer[mix.getRatioExpr().length];
-                for (int j = 0; j < mix.getRatioExpr().length; j++) {
-                    ratio[j] = getExprValue(mix.getRatioExpr()[j]);
+                Integer[] ratio = new Integer[((Mix) stmt).getRatioExpr().length];
+                for (int j = 0; j < ((Mix) stmt).getRatioExpr().length; j++) {
+                    ratio[j] = getExprValue(((Mix) stmt).getRatioExpr()[j]);
                 }
-                checkDimensionBoundaries(mix.getIdentifiers());
-                mix.setCalculatedRatio(ratio);
-                mix.setCalculatedTime(getExprValue(mix.getTimeExpr()));
-                newList.add(mix);
+                checkDimensionBoundaries(((Mix) stmt).getIdentifiers());
+                newList.add(new Mix(((Mix) stmt).getAssign(),((Mix) stmt).getIdentifiers(),ratio,getExprValue(((Mix) stmt).getTimeExpr())));
             } else if (stmt instanceof Incubate) {
-                Incubate incubate = (Incubate) stmt;
-                checkDimensionBoundaries(incubate.getIdentifier());
-                incubate.setCalculatedTemperature(getExprValue(incubate.getTemperatureExpr()));
-                incubate.setCalculatedTime(getExprValue(incubate.getTimeExpr()));
-                newList.add(incubate);
+                checkDimensionBoundaries(((Incubate) stmt).getIdentifier());
+                newList.add(new Incubate(((Incubate) stmt).getAssign(),((Incubate) stmt).getIdentifier(),
+                        getExprValue(((Incubate) stmt).getTemperatureExpr()),getExprValue(((Incubate) stmt).getTimeExpr())));
+            } else if (stmt instanceof Sense) {
+                newList.add(new Sense(((Sense) stmt).getSenseType(),((Sense) stmt).getFrom(),((Sense) stmt).getInto()));
             } else {
                 // TODO: Revisit dimensions to make them into an array and check whether the length is out of bounds
                 newList.add(stmt);

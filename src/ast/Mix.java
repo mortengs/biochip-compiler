@@ -25,6 +25,13 @@ public class Mix extends Statement {
         this.timeExpr = timeExpr;
     }
 
+    public Mix(Identifier assign, Identifier[] identifiers, Integer[] ratio, Integer time) {
+        this.assign = assign;
+        this.identifiers = identifiers;
+        this.ratio = ratio;
+        this.time = time;
+    }
+
     public Identifier getAssign() {
         return assign;
     }
@@ -49,11 +56,4 @@ public class Mix extends Statement {
         return time;
     }
 
-    public void setCalculatedTime(Integer time) {
-        this.time = time;
-    }
-
-    public void setCalculatedRatio(Integer[] ratio) {
-        this.ratio = ratio;
-    }
 }
