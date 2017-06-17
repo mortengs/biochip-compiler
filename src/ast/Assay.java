@@ -33,4 +33,8 @@ public class Assay {
     public List<Statement> getStatements() {
         return statements;
     }
+
+    public String getIdentifier() {
+        return identifier;
+    }
 }

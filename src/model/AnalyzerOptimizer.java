@@ -10,15 +10,11 @@ import java.util.*;
  */
 public class AnalyzerOptimizer {
 
-//    private List<Node<Statement>> visited = new ArrayList<>();
     private Node<Component> componentTree;
 
     public AnalyzerOptimizer(Node<Statement> statementTree) {
         IRWalker irWalker = new IRWalker();
         Map<Node,Node> componentMap = resourceConstrainedListScheduling(statementTree,irWalker.getLongestPathTime(statementTree));
-        for (Node node : componentMap.values()) {
-            System.out.println(node.getData());
-        }
         componentTree = buildSchematicDesign(statementTree,componentMap);
     }
 
@@ -60,18 +56,14 @@ public class AnalyzerOptimizer {
 
             if (node.getData() instanceof ast.Input) {
                 assignInput(node,componentMap);
-                System.out.println("This input: " + node.getData());
             } else if (node.getData() instanceof Incubate) {
                 assignHeater(node,usedComponents,componentMap,longestTime);
-                System.out.println("This incubator: " + node.getData());
             } else if (node.getData() instanceof Mix) {
                 assignMixer(node,usedComponents,componentMap,longestTime);
-                System.out.println("This mix: " + node.getData());
             } else if (node.getData() instanceof Sense) {
                 assignDetector(node,usedComponents,componentMap,longestTime);
-                System.out.println("This sense: " + node.getData());
             } else {
-                // Implement filter.
+                // TODO: Implement filter and separator.
             }
         }
 
@@ -96,18 +88,13 @@ public class AnalyzerOptimizer {
             }
 
             if (node.getData() == null) {
-                System.out.println("root");
                 continue;
             }
-
-            System.out.println("Node: "+componentMap.get(node).getData());
-
             // For each node. Set the children of the component
             Node componentNode = componentMap.get(node);
             for (int i = 0; i < node.getChildren().size(); i++) {
                 // If the node hasn't set this component to be it's child
                 if (!componentNode.getChildren().contains(componentMap.get(node.getChildren().get(i)))) {
-                    System.out.println("Child: "+((Node) node.getChildren().get(i)).getData());
                     componentNode.addChild(componentMap.get(node.getChildren().get(i)));
                 }
             }

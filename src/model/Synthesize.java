@@ -2,6 +2,9 @@ package model;
 
 import components.*;
 
+import javax.sound.midi.Soundbank;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 
@@ -23,7 +26,7 @@ public class Synthesize {
     private int numberOfOutputs = 0;
     private int numberOfSeparators = 0;
 
-    public void synthesize(Node<Component> componentTree) {
+    public boolean synthesize(String aquaName, Node<Component> componentTree) {
 
         componentsNameMap = new HashMap<>();
 
@@ -31,7 +34,7 @@ public class Synthesize {
 
         componentQueue.add(componentTree);
 
-
+        // Convert the tree into a list of all components
         while(!componentQueue.isEmpty()) {
             Node node = componentQueue.remove();
             for (int i = 0; i < node.getChildren().size(); i++) {
@@ -43,22 +46,36 @@ public class Synthesize {
             }
         }
 
+        // First write all the components and map them a name
         for (Node node : visitedComponents) {
             createComponents(node);
         }
+
+        // Then write the interconnection of each component
         for (Node node : visitedComponents) {
             createConnection(node);
         }
 
-        components.append("END LIST;");
+        components.append("END LIST;\n");
         connections.append("END LIST;");
 
-        System.out.println(components);
-        System.out.println(connections);
+        try {
+            PrintWriter out = new PrintWriter(aquaName+".mhdl");
+            out.print(components);
+            out.print(connections);
+            out.close();
+        } catch (Exception e) {
+            return false;
+        }
+
+        printInformation();
+
+        return true;
     }
 
     private void createComponents(Node node) {
         String name = "no name";
+        components.append("\t");
         if (node.getData() instanceof Detector) {
             name = "d"+numberOfDetectors;
             components.append(name);
@@ -105,6 +122,7 @@ public class Synthesize {
     private void createConnection(Node node) {
         StringBuilder connectedTo = new StringBuilder();
         if (!node.getChildren().isEmpty()) {
+            connections.append("\t");
             connections.append(componentsNameMap.get(node.getData()));
             connections.append(" CONNECTS TO ");
             for (int i = 0; i < node.getChildren().size(); i++) {
@@ -116,5 +134,25 @@ public class Synthesize {
             connections.append(connectedTo);
             connections.append(";\n");
         }
+    }
+
+    private void printInformation() {
+        System.out.println(components);
+        System.out.println(connections+"\n");
+        System.out.println("Number of components assigned: "+(numberOfMixers+numberOfHeaters+numberOfFilters+numberOfDetectors+numberOfSeparators));
+        System.out.println("Inputs:\t\t"+numberOfInputs);
+        System.out.println("Mixers:\t\t"+numberOfMixers);
+        System.out.println("Heaters:\t"+numberOfHeaters);
+        System.out.println("Filters:\t"+numberOfFilters);
+        System.out.println("Detectors:\t"+numberOfDetectors);
+        System.out.println("Outputs:\t"+numberOfOutputs);
+        int time = 0;
+        for (Node node : visitedComponents) {
+            if (((Component) node.getData()).getTime() > time) {
+                time = ((Component) node.getData()).getTime();
+            }
+        }
+        // Print out the time it takes to run all the operations (the path of operations with the longest time)
+        // System.out.println("Longest running time: "+time);
     }
 }

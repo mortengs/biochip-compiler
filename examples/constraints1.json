@@ -1,6 +1,6 @@
 {
-  "numberOfFilters": 3,
-  "numberOfHeaters": 3,
-  "numberOfMixers": 3,
-  "numberOfDetectors": 3
+  "numberOfFilters": 1,
+  "numberOfHeaters": 1,
+  "numberOfMixers": 1,
+  "numberOfDetectors": 1
 }

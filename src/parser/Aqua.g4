@@ -67,12 +67,11 @@ stmt
     | mix
     | incubate
     | sense
-    | filter
     | /* empty statement */
     ;
 
 assign
-    : identifier '=' (mix | incubate | filter) #assignFluid
+    : identifier '=' (mix | incubate) #assignFluid
     | identifier '=' expr                      #assignExpr
     ;
 
@@ -86,10 +85,6 @@ incubate
 
 sense
     : 'SENSE' sense_type identifier 'INTO' identifier
-    ;
-
-filter
-    : 'FILTER' identifier
     ;
 
 sense_type

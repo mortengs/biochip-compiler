@@ -1,0 +1,21 @@
+COMPONENT LIST:
+	i0 OF Input;
+	i1 OF Input;
+	i2 OF Input;
+	m0 OF Mixer;
+	m1 OF Mixer;
+	h0 OF Heater;
+	h1 OF Heater;
+	d0 OF Detector;
+	o0 OF Output;
+END LIST;
+CONNECTION LIST:
+	i0 CONNECTS TO m0,m1;
+	i1 CONNECTS TO m0,m1;
+	i2 CONNECTS TO m0;
+	m0 CONNECTS TO h0;
+	m1 CONNECTS TO h0,h1;
+	h0 CONNECTS TO d0;
+	h1 CONNECTS TO d0;
+	d0 CONNECTS TO o0;
+END LIST;
