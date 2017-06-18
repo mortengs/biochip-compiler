@@ -1,7 +1,4 @@
-package ast;
-
-import java.util.ArrayList;
-import java.util.List;
+package operations;
 
 /**
  * Created by Jesper on 15/03/2017.

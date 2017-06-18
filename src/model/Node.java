@@ -16,14 +16,11 @@ public class Node<T> {
         this.data = data;
     }
 
-    public Node(T data, Node<T> parent) {
+    public Node(T data, List<Node<T>> parents) {
         this.data = data;
-        parent.addChild(parent);
-    }
-
-    public Node(T data, List<Node<T>> parent) {
-        this.data = data;
-        this.parents = parent;
+        for (Node<T> parent : parents) {
+            parent.addChild(this);
+        }
     }
 
     public List<Node<T>> getChildren() {
@@ -35,11 +32,12 @@ public class Node<T> {
     }
 
     public void addParent(Node<T> parent) {
-        parent.addChild(this);
+        parent.children.add(this);
         parents.add(parent);
     }
 
     public void addChild(Node<T> child) {
+        child.parents.add(this);
         children.add(child);
     }
 

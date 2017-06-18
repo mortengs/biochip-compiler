@@ -1,4 +1,4 @@
-package ast;
+package operations;
 
 /**
  * Created by Jesper on 31/05/2017.

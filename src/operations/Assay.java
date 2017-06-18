@@ -1,7 +1,5 @@
-package ast;
+package operations;
 
-import ast.Declaration;
-import ast.Statement;
 import java.util.ArrayList;
 import java.util.List;
 /**

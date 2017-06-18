@@ -1,7 +1,7 @@
 package model;
 
-import ast.Assay;
-import ast.Statement;
+import operations.Assay;
+import operations.Statement;
 import components.Component;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,8 +13,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Jesper on 15/03/2017.
@@ -80,7 +79,7 @@ public class Main {
         AquaParser.AssayContext assayContext = parser.assay();
 
         // Initialize the class to parse ANTLR's IR into a list of operations
-        AntlrAquaListener listener = new AntlrAquaListener();
+        AquaListener listener = new AquaListener();
 
         // Now parse it with ANTLR's parser
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -92,9 +91,9 @@ public class Main {
         warnings = listener.getWarnings();
 
         // Build the application graph. This is the IR of the operations
-        IRSearchTree searchTree = new IRSearchTree(assay.getDeclarations(),assay.getStatements());
+        IROperationTree searchTree = new IROperationTree(assay.getDeclarations(),assay.getStatements());
         /* ------- Application graph IR -------- */
-        Node<Statement> statementTree = searchTree.root;
+        Node<Statement> statementTree = searchTree.getOperationTree();
 
         // If there were errors with building this application graph, stop the compiler.
         // This way we can be sure to never have null values further on.
@@ -110,10 +109,10 @@ public class Main {
         }
 
         // Create the component tree. This is the IR of all the components allocated and their direction
-        AnalyzerOptimizer analyzerOptimizer = new AnalyzerOptimizer(statementTree);
+        IRComponentTree IRComponentTree = new IRComponentTree(statementTree);
 
         /* ------- Component graph IR -------- */
-        Node<Component> componentTree = analyzerOptimizer.getComponentTree();
+        Node<Component> componentTree = IRComponentTree.getComponentTree();
         Synthesize synthesizer = new Synthesize();
         if (!synthesizer.synthesize(assay.getIdentifier(),componentTree)) {
             System.out.println(ANSI_RED+"ERROR: Unable to write file"+ANSI_RESET);

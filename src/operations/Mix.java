@@ -1,10 +1,6 @@
-package ast;
+package operations;
 
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import parser.AquaParser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Jesper on 15/03/2017.

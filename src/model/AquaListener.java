@@ -1,9 +1,8 @@
 package model;
 
-import ast.Assay;
+import operations.Assay;
 
-import ast.*;
-import components.Component;
+import operations.*;
 import parser.AquaBaseListener;
 import parser.AquaParser;
 
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 /**
  * Created by Jesper on 20/03/2017.
  */
-public class AntlrAquaListener extends AquaBaseListener {
+public class AquaListener extends AquaBaseListener {
 
     private HashMap<String, Declaration> declarationsMapper = new HashMap<>();
     private List<Input> inputs = new ArrayList<>();

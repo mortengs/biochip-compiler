@@ -1,6 +1,6 @@
 package model;
 
-import ast.*;
+import operations.*;
 import components.*;
 
 import java.util.*;
@@ -8,19 +8,14 @@ import java.util.*;
 /**
  * Created by Jesper on 29/05/2017.
  */
-public class AnalyzerOptimizer {
+public class IRComponentTree {
 
     private Node<Component> componentTree;
 
-    public AnalyzerOptimizer(Node<Statement> statementTree) {
+    public IRComponentTree(Node<Statement> statementTree) {
         IRWalker irWalker = new IRWalker();
         Map<Node,Node> componentMap = resourceConstrainedListScheduling(statementTree,irWalker.getLongestPathTime(statementTree));
         componentTree = buildSchematicDesign(statementTree,componentMap);
-    }
-
-    // TODO: Solution to mixer ratio problem
-    public void ratioApproximation() {
-
     }
 
     // LS algorithm
@@ -36,25 +31,15 @@ public class AnalyzerOptimizer {
 
         while(!statementQueue.isEmpty()) {
             Node node = statementQueue.remove();
-
             // Need to have a list for the children in order to set the urgency
-            List<Node> children = new LinkedList<>();
             // Walk over every child.
             for (int i = 0; i < node.getChildren().size(); i++) {
-                if (!statementQueue.contains(node.getChildren().get(i)) && !children.contains(node.getChildren().get(i))) {
-                    // Check for urgency
-                    if (((Node) node.getChildren().get(i)).getUrgency()) {
-                        children.add(0,(Node) node.getChildren().get(i));
-                    } else {
-                        children.add((Node) node.getChildren().get(i));
-                    }
-                }
+//                if (!statementQueue.contains(node.getChildren().get(i))) {
+                    statementQueue.add((Node) node.getChildren().get(i));
+//                }
             }
 
-            // Add the children to the queue
-            statementQueue.addAll(children);
-
-            if (node.getData() instanceof ast.Input) {
+            if (node.getData() instanceof operations.Input) {
                 assignInput(node,componentMap);
             } else if (node.getData() instanceof Incubate) {
                 assignHeater(node,usedComponents,componentMap,longestTime);
@@ -105,7 +90,7 @@ public class AnalyzerOptimizer {
             }
 
             // If the node is an input then direct the root to this
-            if (node.getData() instanceof ast.Input) {
+            if (node.getData() instanceof operations.Input) {
                 root.addChild(componentMap.get(node));
             }
         }
@@ -152,7 +137,6 @@ public class AnalyzerOptimizer {
                 // Find a component that isn't going over the urgency limit
                 if (((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime() <= time) {
                     isGoingOverUgerncy = false;
-                    //System.out.println("Time: "+(((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime()));
                     heater = usedComponents.get(index);
                     ((Heater) usedComponents.get(index).getData()).addTime(((Incubate) node.getData()).getTime());
                     componentMap.put(node,heater);
@@ -210,7 +194,6 @@ public class AnalyzerOptimizer {
                 // Find a component that isn't going over the urgency limit
                 if (((Mixer) usedComponents.get(index).getData()).getTime()+((Mix) node.getData()).getTime() <= time) {
                     isGoingOverUgerncy = false;
-                    //System.out.println("Time: "+(((Heater) usedComponents.get(index).getData()).getTime()+((Incubate) node.getData()).getTime()));
                     mixer = usedComponents.get(index);
                     ((Mixer) usedComponents.get(index).getData()).addTime(((Mix) node.getData()).getTime());
                     componentMap.put(node,mixer);
@@ -248,7 +231,7 @@ public class AnalyzerOptimizer {
     }
 
     private void assignInput(Node node, Map<Node,Node> componentMap) {
-        components.Input input = new components.Input(((ast.Input) node.getData()).getInput_integer());
+        components.Input input = new components.Input(((operations.Input) node.getData()).getInput_integer());
         input.addTime(DefaultValues.getInputDefaultTime());
         componentMap.put(node,new Node(input));
     }
