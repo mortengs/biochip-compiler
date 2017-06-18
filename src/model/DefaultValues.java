@@ -11,9 +11,6 @@ public final class DefaultValues {
     private static int detectorDefaultTime = 1;
     private static int inputDefaultTime = 1;
 
-    private DefaultValues() {
-    }
-
     static int getFilterDefaultTime() {
         return filterDefaultTime;
     }

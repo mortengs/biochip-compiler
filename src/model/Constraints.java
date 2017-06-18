@@ -9,10 +9,6 @@ final class Constraints {
     private static int numberOfMixers = 2;
     private static int numberOfDetectors = 2;
 
-    private Constraints() {
-
-    }
-
     static int getNumberOfFilters() {
         return numberOfFilters;
     }

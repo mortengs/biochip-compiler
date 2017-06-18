@@ -50,11 +50,11 @@ public class Node<T> {
     }
 
     public boolean isRoot() {
-        return (this.parents == null);
+        return (this.parents.isEmpty());
     }
 
     public boolean isLeaf() {
-        if(this.children.size() == 0)
+        if(this.children.isEmpty())
             return true;
         else
             return false;

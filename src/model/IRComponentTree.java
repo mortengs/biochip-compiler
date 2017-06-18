@@ -5,39 +5,46 @@ import components.*;
 
 import java.util.*;
 
-/**
- * Created by Jesper on 29/05/2017.
- */
-public class IRComponentTree {
+class IRComponentTree {
 
     private Node<Component> componentTree;
+    private List<Node> urgentPath = new ArrayList<>();
+    private int longestTime;
 
-    public IRComponentTree(Node<Statement> statementTree) {
+    IRComponentTree(Node<Statement> statementTree) {
         IRWalker irWalker = new IRWalker();
         Map<Node,Node> componentMap = resourceConstrainedListScheduling(statementTree,irWalker.getLongestPathTime(statementTree));
         componentTree = buildSchematicDesign(statementTree,componentMap);
     }
 
     // LS algorithm
-    public Map<Node,Node> resourceConstrainedListScheduling(Node<Statement> rootStatementTree, int longestTime) {
+    private Map<Node,Node> resourceConstrainedListScheduling(Node<Statement> rootStatementTree, int longestTime) {
+        this.longestTime = longestTime;
         // List of all the used components
         List<Node> usedComponents = new ArrayList<>();
         // Queue of statements
         Queue<Node> statementQueue = new LinkedList<>();
         // Map of statements and components.
         Map<Node,Node> componentMap = new HashMap<>();
-
+        // The most urgent path
         statementQueue.add(rootStatementTree);
 
         while(!statementQueue.isEmpty()) {
             Node node = statementQueue.remove();
             // Need to have a list for the children in order to set the urgency
             // Walk over every child.
+            List<Node> children = new ArrayList<>();
+
             for (int i = 0; i < node.getChildren().size(); i++) {
-//                if (!statementQueue.contains(node.getChildren().get(i))) {
+                // Get the most urgent first
+                if (((Node) node.getChildren().get(i)).getUrgency()) {
                     statementQueue.add((Node) node.getChildren().get(i));
-//                }
+                    urgentPath.add((Node) node.getChildren().get(i));
+                } else {
+                    children.add((Node) node.getChildren().get(i));
+                }
             }
+            statementQueue.addAll(children);
 
             if (node.getData() instanceof operations.Input) {
                 assignInput(node,componentMap);
@@ -56,7 +63,7 @@ public class IRComponentTree {
     }
 
     // This algorithm combines all the directions of the component tree.
-    public Node<Component> buildSchematicDesign(Node<Statement> rootStatementTree, Map<Node,Node> componentMap) {
+    private Node<Component> buildSchematicDesign(Node<Statement> rootStatementTree, Map<Node,Node> componentMap) {
         Node<Output> outputNode = new Node(new Output());
         Node<Component> root = new Node<Component>(null);
         Queue<Node> statementQueue = new LinkedList<>();
@@ -97,12 +104,12 @@ public class IRComponentTree {
         return root;
     }
 
-    public Node<Component> getComponentTree() {
+    Node<Component> getComponentTree() {
         return componentTree;
     }
 
     // Used both as getting index and as contains
-    public static <E> List<Integer> getIndex(List<Node> list, Class clazz) {
+    private static <E> List<Integer> getIndex(List<Node> list, Class clazz) {
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             if (clazz.isInstance(list.get(i).getData())) {
@@ -282,5 +289,9 @@ public class IRComponentTree {
                 }
             }
         }
+    }
+
+    public int getLongestTime() {
+        return longestTime;
     }
 }

@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class IRWalker {
 
+    // TODO: Move this into IRComponentTree
+
     private List<Node<Statement>> path;
     private List<PathTime> paths;
     private int longestPathTime;
@@ -39,7 +41,6 @@ public class IRWalker {
     }
 
     private int getTime(Node node) {
-        // TODO: Manage constraints and additional time for operations and moving between them
         if (node.getData() instanceof Mix) {
             if (((Mix) node.getData()).getTime() != null) {
                 return ((Mix) node.getData()).getTime();

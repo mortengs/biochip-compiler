@@ -6,6 +6,7 @@ import components.Component;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import parser.AquaIRConstructor;
 import parser.AquaLexer;
 import parser.AquaParser;
 
@@ -79,7 +80,7 @@ public class Main {
         AquaParser.AssayContext assayContext = parser.assay();
 
         // Initialize the class to parse ANTLR's IR into a list of operations
-        AquaListener listener = new AquaListener();
+        AquaIRConstructor listener = new AquaIRConstructor();
 
         // Now parse it with ANTLR's parser
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -114,7 +115,10 @@ public class Main {
         /* ------- Component graph IR -------- */
         Node<Component> componentTree = IRComponentTree.getComponentTree();
         Synthesize synthesizer = new Synthesize();
-        if (!synthesizer.synthesize(assay.getIdentifier(),componentTree)) {
+
+        synthesizer.synthesize(assay.getIdentifier(), componentTree, IRComponentTree.getLongestTime());
+
+        if (!synthesizer.getSuccess()) {
             System.out.println(ANSI_RED+"ERROR: Unable to write file"+ANSI_RESET);
         }
     }

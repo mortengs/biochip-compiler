@@ -12,11 +12,14 @@ import java.util.*;
  * Created by Jesper on 22/05/2017.
  */
 public class Synthesize {
-    StringBuilder components = new StringBuilder().insert(0,"COMPONENT LIST:\n");
-    StringBuilder connections = new StringBuilder().insert(0,"CONNECTION LIST:\n");
+    private StringBuilder components = new StringBuilder().insert(0,"COMPONENT LIST:\n");
+    private StringBuilder connections = new StringBuilder().insert(0,"CONNECTION LIST:\n");
 
     private Map<Component,String> componentsNameMap;
-    List<Node> visitedComponents = new LinkedList<>();
+    private List<Node> visitedComponents = new LinkedList<>();
+
+    private boolean success = false;
+    private int longestTime;
 
     private int numberOfDetectors = 0;
     private int numberOfFilters = 0;
@@ -26,7 +29,8 @@ public class Synthesize {
     private int numberOfOutputs = 0;
     private int numberOfSeparators = 0;
 
-    public boolean synthesize(String aquaName, Node<Component> componentTree) {
+    public void synthesize(String aquaName, Node<Component> componentTree, int longestTime) {
+        this.longestTime = longestTime;
 
         componentsNameMap = new HashMap<>();
 
@@ -65,12 +69,12 @@ public class Synthesize {
             out.print(connections);
             out.close();
         } catch (Exception e) {
-            return false;
+            return;
         }
 
         printInformation();
 
-        return true;
+        success = true;
     }
 
     private void createComponents(Node node) {
@@ -152,7 +156,13 @@ public class Synthesize {
                 time = ((Component) node.getData()).getTime();
             }
         }
+
+        System.out.println("Longest path has the time: "+longestTime);
         // Print out the time it takes to run all the operations (the path of operations with the longest time)
         // System.out.println("Longest running time: "+time);
+    }
+
+    public boolean getSuccess() {
+        return success;
     }
 }

@@ -1,10 +1,8 @@
-package model;
+package parser;
 
 import operations.Assay;
 
 import operations.*;
-import parser.AquaBaseListener;
-import parser.AquaParser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by Jesper on 20/03/2017.
  */
-public class AquaListener extends AquaBaseListener {
+public class AquaIRConstructor extends AquaBaseListener {
 
     private HashMap<String, Declaration> declarationsMapper = new HashMap<>();
     private List<Input> inputs = new ArrayList<>();
