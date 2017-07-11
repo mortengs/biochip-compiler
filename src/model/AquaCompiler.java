@@ -3,13 +3,12 @@ package model;
 import operations.Assay;
 import operations.Statement;
 import components.Component;
-import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import parser.AquaIRConstructor;
+import parser.AquaConstructor;
 import parser.AquaLexer;
 import parser.AquaParser;
-
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -19,12 +18,16 @@ import java.util.*;
 /**
  * Created by Jesper on 15/03/2017.
  */
-public class Main {
+public class AquaCompiler {
 
     private static final Double VERSION = 1.0;
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_YELLOW = "\u001B[33m";
+
+    private static String name;
+    private static List<Node<Component>> componentTrees = new ArrayList<>();
+    private static List<Integer> longestPath = new ArrayList<>();
 
     /* Errors are defined as something written in the aqua file that is not supposed to
        happen and may result in problem further on. */
@@ -34,7 +37,7 @@ public class Main {
     private static List<String> warnings = new ArrayList<>();
 
     public static void main(String args[]) {
-        File aquaFile;
+        long start = System.nanoTime();
         // Handle the different user input
         if (args.length > 0) {
             switch (args[0]) {
@@ -44,21 +47,29 @@ public class Main {
                     break;
                 case "stream":
                     try {
-                        aquaFile = new File(args[1]);
+                        File aquaFile = new File(args[1]);
                         stream(aquaFile);
                     } catch (IOException e) {
                         System.err.println(ANSI_RED+e.getMessage()+ANSI_RESET);
                     }
                     break;
                 default:
-                    // In case there is a constraints file
+                    List<File> aquaFiles = new ArrayList<>();
                     try {
-                        aquaFile = new File(args[0]);
-                        // Handle if the user specifies some constraints
-                        setConstraintsValues(args);
-                        // Check file extension
-                        checkFileExtension(aquaFile,".aq");
-                        compile(aquaFile);
+                        for (String arg: args) {
+                            // Check file extension
+                            File file  = new File(arg);
+                            if (checkFileExtension(file,".aq")) {
+                                aquaFiles.add(new File(arg));
+                            } else if (checkFileExtension(file,".json")) {
+                                setConstraintsValues(file);
+                            }
+                        }
+                        // Compile
+                        for (File aquaFile : aquaFiles) {
+                            compile(aquaFile);
+                        }
+                        synthesize(name, componentTrees, longestPath);
                     } catch (IOException e) {
                         System.err.println(ANSI_RED+e.getMessage()+ANSI_RESET);
                     }
@@ -66,13 +77,15 @@ public class Main {
         } else {
             printHelp();
         }
+        System.out.println("KB: " + (double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
+        long elapsedTime = System.nanoTime() - start;
+        System.out.println("Time to complete: "+(elapsedTime/1000000000.0));
     }
 
     private static void compile(File file) throws IOException {
-
-        // Main structure of what the compiler handles first.
+        // AquaCompiler structure of what the compiler handles first.
         // Reading the file and lexing it in order to get a tokenStream
-        AquaLexer lex = new AquaLexer(new ANTLRFileStream(file.toString()));
+        AquaLexer lex = new AquaLexer(CharStreams.fromFileName(file.getAbsolutePath()));
         CommonTokenStream tokens = new CommonTokenStream(lex);
 
         // Simple parsing to get ANTLR's IR
@@ -80,7 +93,7 @@ public class Main {
         AquaParser.AssayContext assayContext = parser.assay();
 
         // Initialize the class to parse ANTLR's IR into a list of operations
-        AquaIRConstructor listener = new AquaIRConstructor();
+        AquaConstructor listener = new AquaConstructor();
 
         // Now parse it with ANTLR's parser
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -90,44 +103,52 @@ public class Main {
         Assay assay = listener.getAssay();
         errs = listener.getErrors();
         warnings = listener.getWarnings();
+        name = assay.getIdentifier();
+
+        System.out.println("\nAssay: "+name+"\n");
 
         // Build the application graph. This is the IR of the operations
-        IROperationTree searchTree = new IROperationTree(assay.getDeclarations(),assay.getStatements());
+        IROperationTree searchTree = new IROperationTree(assay.getDeclarations(), assay.getStatements());
         /* ------- Application graph IR -------- */
         Node<Statement> statementTree = searchTree.getOperationTree();
 
         // If there were errors with building this application graph, stop the compiler.
         // This way we can be sure to never have null values further on.
         if (errs.size() > 0) {
-            for (String err: errs) {
+            for (String err : errs) {
                 System.err.println(ANSI_RED + err + ANSI_RESET);
             }
             return;
         }
 
-        for (String warning: warnings) {
+        for (String warning : warnings) {
             System.err.println(ANSI_YELLOW + warning + ANSI_RESET);
         }
 
         // Create the component tree. This is the IR of all the components allocated and their direction
-        IRComponentTree IRComponentTree = new IRComponentTree(statementTree);
+        IRComponentTree iRComponentTree = new IRComponentTree(statementTree);
 
         /* ------- Component graph IR -------- */
-        Node<Component> componentTree = IRComponentTree.getComponentTree();
+        Node<Component> componentTree = iRComponentTree.getComponentTree();
+        longestPath.add(iRComponentTree.getLongestPath());
+        componentTrees.add(componentTree);
+    }
+
+    private static void synthesize(String identifier, List<Node<Component>> componentTrees, List<Integer> longestPath) {
         Synthesize synthesizer = new Synthesize();
-
-        synthesizer.synthesize(assay.getIdentifier(), componentTree, IRComponentTree.getLongestTime());
-
-        if (!synthesizer.getSuccess()) {
-            System.out.println(ANSI_RED+"ERROR: Unable to write file"+ANSI_RESET);
-        }
+        synthesizer.synthesize(identifier, componentTrees, longestPath);
     }
 
     // Prints out the aqua code in command line.
     private static void stream(File file) throws IOException {
         StringBuilder out = new StringBuilder();
         String sep = System.lineSeparator();
-        out.append(new ANTLRFileStream(file.toString())).append(sep);
+        try (BufferedReader br = new BufferedReader(new FileReader(file.getAbsolutePath()))) {
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                out.append(line).append(sep);
+            }
+        }
         System.out.println(out.toString());
     }
 
@@ -147,21 +168,19 @@ public class Main {
     }
 
     // Handle new constraints.
-    private static void setConstraintsValues(String[] args) throws IOException {
+    private static void setConstraintsValues(File jsonFile) throws IOException {
         // If there is a file containing constraints
-        if (args.length == 2) {
-            File jsonFile = new File(args[1]);
-            checkFileExtension(jsonFile,".json");
-            InputStream fis = new FileInputStream(jsonFile);
 
+        if (checkFileExtension(jsonFile,".json")) {
+            InputStream fis = new FileInputStream(jsonFile);
             JsonReader reader = Json.createReader(fis);
             JsonObject constraintsObject = reader.readObject();
 
             // The json file MUST include all the constraints
-            Constraints.setNumberOfFilters(constraintsObject.getInt("numberOfFilters"));
-            Constraints.setNumberOfHeaters(constraintsObject.getInt("numberOfHeaters"));
-            Constraints.setNumberOfMixers(constraintsObject.getInt("numberOfMixers"));
-            Constraints.setNumberOfDetectors(constraintsObject.getInt("numberOfDetectors"));
+            Constraints.setNumberOfFilters(constraintsObject.getInt("Filters"));
+            Constraints.setNumberOfHeaters(constraintsObject.getInt("Heaters"));
+            Constraints.setNumberOfMixers(constraintsObject.getInt("Mixers"));
+            Constraints.setNumberOfDetectors(constraintsObject.getInt("Detectors"));
 
             if (Constraints.getNumberOfDetectors() == 0 || Constraints.getNumberOfMixers() == 0 || Constraints.getNumberOfHeaters() == 0 || Constraints.getNumberOfFilters() == 0) {
                 System.out.println(ANSI_YELLOW+"Warning: Declaration of 0 numbers of a component is ignored"+ANSI_RESET);
@@ -179,10 +198,11 @@ public class Main {
         }
     }
 
-    private static void checkFileExtension(File file, String extension) {
+    private static boolean checkFileExtension(File file, String extension) {
         String name = file.getName();
-        if (!name.endsWith(extension)) {
-            System.out.println(ANSI_RED+"ERROR: "+name+" is not a "+extension+" file");
+        if (name.endsWith(extension)) {
+            return true;
         }
+        return false;
     }
 }

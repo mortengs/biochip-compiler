@@ -10,7 +10,7 @@ public class Node<T> {
     private List<Node<T>> children = new ArrayList<>();
     private List<Node<T>> parents = new ArrayList<>();
     private T data = null;
-    private boolean isUrgent = false;
+    private int urgency = Integer.MAX_VALUE;
 
     public Node(T data) {
         this.data = data;
@@ -60,11 +60,11 @@ public class Node<T> {
             return false;
     }
 
-    public boolean getUrgency() {
-        return isUrgent;
+    public int getUrgency() {
+        return urgency;
     }
 
-    public void setUrgency(boolean urgency) {
-        this.isUrgent = urgency;
+    public void setUrgency(int urgency) {
+        this.urgency = urgency;
     }
 }

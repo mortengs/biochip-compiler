@@ -21,6 +21,7 @@ decl
     | input_
     | var
     | conflict
+    | /* empty declaration */
     ;
 
 fluid
@@ -40,7 +41,7 @@ dimension
     ;
 
 conflict
-    : 'CONFLICT' IDENTIFIER ('FOLLOWS' IDENTIFIER | ',' IDENTIFIER) ('WASH' IDENTIFIER)?
+    : 'CONFLICT' IDENTIFIER ('FOLLOWS'|',') IDENTIFIER ('WASH' IDENTIFIER)?
     ;
 
 /* STATEMENTS */
@@ -72,7 +73,7 @@ stmt
 
 assign
     : identifier '=' (mix | incubate) #assignFluid
-    | identifier '=' expr                      #assignExpr
+    | identifier '=' expr             #assignExpr
     ;
 
 mix

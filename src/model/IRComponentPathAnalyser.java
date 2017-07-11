@@ -3,12 +3,14 @@ package model;
 import operations.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by Jesper on 02/06/2017.
  */
-public class IRWalker {
+class IRComponentPathAnalyser {
 
     // TODO: Move this into IRComponentTree
 
@@ -16,26 +18,28 @@ public class IRWalker {
     private List<PathTime> paths;
     private int longestPathTime;
 
-    public IRWalker() {
+    IRComponentPathAnalyser() {
         longestPathTime = 0;
         path = new ArrayList<>();
         paths = new ArrayList<>();
     }
 
-    public int getLongestPathTime(Node<Statement> root) {
+    int getLongestPathTime(Node<Statement> root) {
+        int urgency = 0;
         if (longestPathTime != 0) {
             return longestPathTime;
         } else {
             getAllPaths(root, 0);
+            paths.sort(Comparator.comparingInt(PathTime::getTime).reversed());
             for (PathTime pathtime : paths) {
-                if (pathtime.getTime() > longestPathTime) {
-                    path = pathtime.getPath();
-                    longestPathTime = pathtime.getTime();
+                for (Node node : pathtime.getPath()) {
+                    if (node.getUrgency() == Integer.MAX_VALUE) {
+                        node.setUrgency(urgency);
+                    }
                 }
+                urgency++;
             }
-            for (Node node : path) {
-                node.setUrgency(true);
-            }
+            longestPathTime = paths.get(0).getTime();
             return longestPathTime;
         }
     }
@@ -46,19 +50,19 @@ public class IRWalker {
                 return ((Mix) node.getData()).getTime();
             } else {
                 // Applying default time, since none was given
-                return DefaultValues.getMixerDefaultTime();
+                return Configuration.getMixerDefaultTime();
             }
         } else if (node.getData() instanceof Incubate) {
             if (((Incubate) node.getData()).getTemperature() != null) {
                 return ((Incubate) node.getData()).getTime();
             } else {
                 // Applying default time, since none was given
-                return DefaultValues.getHeaterDefaultTime();
+                return Configuration.getHeaterDefaultTime();
             }
         } else if (node.getData() instanceof Sense) {
-            return DefaultValues.getDetectorDefaultTime();
+            return Configuration.getDetectorDefaultTime();
         } else if (node.getData() instanceof Input){
-            return DefaultValues.getInputDefaultTime();
+            return Configuration.getInputDefaultTime();
         } else {
             return 0;
         }
@@ -84,7 +88,7 @@ public class IRWalker {
         private int time;
         private List<Node<Statement>> path;
 
-        public PathTime(int time, List<Node<Statement>> path) {
+        PathTime(int time, List<Node<Statement>> path) {
             this.time = time;
             this.path = path;
         }
@@ -93,9 +97,8 @@ public class IRWalker {
             return time;
         }
 
-        public List<Node<Statement>> getPath() {
+        List<Node<Statement>> getPath() {
             return path;
         }
     }
-
 }

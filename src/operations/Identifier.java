@@ -1,25 +1,25 @@
 package operations;
 
+import parser.AquaParser;
+
+import java.util.List;
+
 /**
  * Created by Jesper on 31/05/2017.
  */
 public class Identifier {
     String identifier;
-    Index[] indices;
-    public Identifier(String identifier, Index[] indices) {
+    List<AquaParser.IndexContext> index;
+    public Identifier(String identifier, List<AquaParser.IndexContext> index) {
         this.identifier = identifier;
-        this.indices = indices;
+        this.index = index;
     }
 
     public String getIdentifier() {
         return identifier;
     }
 
-    public int getNumberOfIndeces() {
-        return indices.length;
-    }
-
-    public Index[] getIndeces() {
-        return indices;
+    public List<AquaParser.IndexContext> getIndeces() {
+        return index;
     }
 }

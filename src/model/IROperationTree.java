@@ -1,30 +1,26 @@
 package model;
 
 import operations.*;
-
 import java.util.*;
 
-/**
- * Created by Jesper on 02/06/2017.
- */
-public class IROperationTree {
+class IROperationTree {
 
     /* The start is a null value node */
-    private Node<Statement> root = new Node<>(null);
-    // No fluid can be linked to root
+    private Node<Statement> operationTree = new Node<>(null);
+    // No fluid can be linked to operationTree
     /* Specifies at which depth the fluid is */
     private HashMap<String, Node<Statement>> fluidMap = new HashMap<>();
 
     /* Creating the search tree from a list of statements */
-    public IROperationTree(List<Declaration> declarations, List<Statement> statements) {
-        BuildSearchTree(declarations, statements);
+    IROperationTree(List<Declaration> declarations, List<Statement> statements) {
+        buildOperationTree(declarations, statements);
     }
 
-    public Node<Statement> getOperationTree() {
-        return root;
+    Node<Statement> getOperationTree() {
+        return operationTree;
     }
 
-    private void BuildSearchTree(List<Declaration> declarations, List<Statement> statements) {
+    private void buildOperationTree(List<Declaration> declarations, List<Statement> statements) {
         /* it will always be overwritten for each statement */
         Identifier it = new Identifier("it",null);
 
@@ -32,7 +28,7 @@ public class IROperationTree {
         for (Declaration declaration : declarations) {
             if (declaration instanceof Input) {
                 Node input = new Node<Declaration>(((Input) declaration));
-                input.addParent(root);
+                input.addParent(operationTree);
                 fluidMap.put(declaration.getIdentifier(),input);
             }
         }
@@ -42,12 +38,46 @@ public class IROperationTree {
             // Check if assign is a fluid
             // else if assign is null.
             if (statement instanceof Mix) {
-                int[] approximatedRatios = ratioApproximation((Mix) statement);
-                Node<Statement> mix = minMix(((Mix) statement), approximatedRatios);
+
+                System.out.print(((Mix) statement).getAssign().getIdentifier()+" = MIX ");
+                for (int i = 0; i < ((Mix) statement).getIdentifiers().length; i++) {
+                    System.out.print(((Mix) statement).getIdentifiers()[i].getIdentifier());
+                    if ((i+1)<((Mix) statement).getIdentifiers().length) {
+                        System.out.print(" AND ");
+                    }
+                }
+                System.out.print(" ");
+                for (int i = 0; i < ((Mix) statement).getRatio().length; i++) {
+                    System.out.print(((Mix) statement).getRatio()[i]);
+                    if ((i+1)<((Mix) statement).getRatio().length) {
+                        System.out.print(" : ");
+                    }
+                }
+                System.out.println(" FOR " +((Mix) statement).getTime());
+
+                Node<Statement> mix;
+                if (Configuration.getMixerType() == MixerType.ONE_TO_ONE) {
+                    int[] approximatedRatios = ratioApproximation((Mix) statement);
+                    mix = minMix(((Mix) statement), approximatedRatios);
+                } else {
+                    mix = new Node<>(new Mix(((Mix) statement).getAssign(),((Mix) statement).getIdentifiers(),((Mix) statement).getRatio(),((Mix) statement).getTime()));
+                    for (Identifier identifier: ((Mix) mix.getData()).getIdentifiers()) {
+                        if (identifier.getIdentifier().equals(it.getIdentifier())) {
+                            mix.addParent(fluidMap.get(it.getIdentifier()));
+                        } else if (fluidMap.containsKey(identifier.getIdentifier())) {
+                            mix.addParent(fluidMap.get(identifier.getIdentifier()));
+                        } else {
+                            mix.addParent(operationTree);
+                        }
+                    }
+                }
                 Identifier assignedValue = ((Mix) statement).getAssign();
                 fluidMap.put(assignedValue.getIdentifier(),mix);
                 fluidMap.put(it.getIdentifier(),mix);
             } else if (statement instanceof Incubate) {
+
+                System.out.println(((Incubate) statement).getAssign().getIdentifier() +" = INCUBATE "+((Incubate) statement).getIdentifier().getIdentifier()+" AT " +((Incubate) statement).getTemperature() + " FOR "+((Incubate) statement).getTime());
+
                 Node incubate = new Node<>((Incubate) statement);
                 Identifier assignedValue = ((Incubate) statement).getAssign();
                 Identifier identifier = ((Incubate) statement).getIdentifier();
@@ -56,11 +86,14 @@ public class IROperationTree {
                 } else if (fluidMap.containsKey(identifier.getIdentifier())) {
                     incubate.addParent(fluidMap.get(identifier.getIdentifier()));
                 } else {
-                    incubate.addParent(root);
+                    incubate.addParent(operationTree);
                 }
                 fluidMap.put(assignedValue.getIdentifier(),incubate);
                 fluidMap.put(it.getIdentifier(),incubate);
             } else if (statement instanceof Sense) {
+
+                System.out.println("SENSE "+((Sense) statement).getSenseType().name()+" FROM "+((Sense) statement).getFrom().getIdentifier()+" INTO "+((Sense) statement).getInto().getIdentifier());
+
                 // Since sense takes no time, one has to add physical constraints to it.
                 Node sense = new Node<>((Sense) statement);
                 Identifier identifier = ((Sense) statement).getFrom();
@@ -69,7 +102,7 @@ public class IROperationTree {
                 } else if (fluidMap.containsKey(identifier.getIdentifier())) {
                     sense.addParent(fluidMap.get(identifier.getIdentifier()));
                 } else {
-                    sense.addParent(root);
+                    sense.addParent(operationTree);
                 }
                 fluidMap.put(identifier.getIdentifier(),sense);
                 fluidMap.put(it.getIdentifier(),sense);
@@ -88,7 +121,7 @@ public class IROperationTree {
 
             int closestApproximation = 2;
             while(closestApproximation < sum) {
-                closestApproximation = closestApproximation*((int) Math.log(sum));
+                closestApproximation = closestApproximation*2;
             }
 
             double p[] = new double[ratio.length];

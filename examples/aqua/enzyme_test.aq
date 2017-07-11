@@ -27,6 +27,21 @@ ASSAY enzyme_test START
     substrate_diluent = 1;
 
     FOR i FROM 1 TO 4 START
+        Diluted_Inhibitor[i] = MIX inhibitor AND diluent IN RATIOS 1 : inhibitor_diluent FOR 30;
+        inhibitor_diluent = inhibitor_diluent * 10;
+    ENDFOR
+
+    FOR i FROM 1 TO 4 START
+        Diluted_Enzyme[i] = MIX enzyme AND diluent IN RATIOS 1 : enzyme_diluent FOR 30;
+        enzyme_diluent = enzyme_diluent * 10;
+    ENDFOR
+
+    FOR i FROM 1 TO 4 START
+        Diluted_Substrate[i] = MIX substrate AND diluent IN RATIOS 1 : substrate_diluent FOR 30;
+        substrate_diluent = substrate_diluent * 10;
+    ENDFOR
+
+    FOR i FROM 1 TO 4 START
         FOR j FROM 1 TO 4 START
             FOR k FROM 1 TO 4 START
                 MIX Diluted_Inhibitor[i] AND Diluted_Enzyme[j] AND Diluted_Substrate[k] FOR 60;

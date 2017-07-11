@@ -11,7 +11,8 @@ import java.util.ArrayList;
 /**
  * Created by Jesper on 20/03/2017.
  */
-public class AquaIRConstructor extends AquaBaseListener {
+
+public class AquaConstructor extends AquaBaseListener {
 
     private HashMap<String, Declaration> declarationsMapper = new HashMap<>();
     private List<Input> inputs = new ArrayList<>();
@@ -108,7 +109,7 @@ public class AquaIRConstructor extends AquaBaseListener {
     public void enterAssignFluid(AquaParser.AssignFluidContext ctx) {
         Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Fluid) {
-            assignFluid = getIdentifier(ctx.identifier());
+            assignFluid = new Identifier(ctx.identifier().IDENTIFIER().getText(),ctx.identifier().index());
         } else {
             errors.add("ERROR: "+ctx.identifier().IDENTIFIER()+" is not a FLUID");
         }
@@ -119,7 +120,7 @@ public class AquaIRConstructor extends AquaBaseListener {
         Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Var) {
             // Var var = (Var) decl;
-            Identifier identifier = getIdentifier(ctx.identifier());
+            Identifier identifier = new Identifier(ctx.identifier().IDENTIFIER().getText(),ctx.identifier().index());
             //var.setValue(getExprValue(ctx.expr()));
             // declarationsMapper.replace(var.getIdentifier(),var);
             statements.add(new AssignExpr(identifier,ctx.expr()));
@@ -136,12 +137,12 @@ public class AquaIRConstructor extends AquaBaseListener {
 
         // Check whether the fluids were the previously used
         if (ctx.identifier(0).getText().equals("it")) {
-            identifiers[0] = new Identifier(ctx.identifier(0).IDENTIFIER().getText(), null);
+            identifiers[0] = new Identifier(ctx.identifier(0).IDENTIFIER().getText(),null);
         } else {
             for (int i = 0; i < ctx.identifier().size(); i++) {
                 Declaration decl = declarationsMapper.get(ctx.identifier(i).IDENTIFIER().getText());
                 if (decl instanceof Fluid || ctx.identifier(i).IDENTIFIER().getText().equals("it")) {
-                    identifiers[i] = getIdentifier(ctx.identifier(i));
+                    identifiers[i] = new Identifier(ctx.identifier(i).IDENTIFIER().getText(),ctx.identifier(i).index());
                 } else {
                     errors.add("ERROR: "+ctx.identifier(i).IDENTIFIER()+" is not a FLUID");
                 }
@@ -157,6 +158,12 @@ public class AquaIRConstructor extends AquaBaseListener {
         AquaParser.ExprContext forValue = ratioList.get(ratioList.size()-1);
         ratioList.remove(ratioList.size()-1);
 
+        if (ratioList.size() > identifiers.length) {
+            errors.add("ERROR: '"+ctx.getText()+"' has more ratios than incoming fluids");
+        } else if ((ratioList.size() < identifiers.length) && ratioList.size() != 0) {
+            errors.add("ERROR: '"+ctx.getText()+"' has more incomming fluids than ratios");
+        }
+
         if (assignFluid != null) {
             statements.add(new Mix(assignFluid, identifiers, ratioList.toArray(new AquaParser.ExprContext[ratioList.size()]), forValue));
             assignFluid = null;
@@ -171,7 +178,7 @@ public class AquaIRConstructor extends AquaBaseListener {
 
         Declaration decl = declarationsMapper.get(ctx.identifier().IDENTIFIER().getText());
         if (decl instanceof Fluid || ctx.identifier().IDENTIFIER().getText().equals("it")) {
-            Identifier identifier = getIdentifier(ctx.identifier());
+            Identifier identifier = new Identifier(ctx.identifier().IDENTIFIER().getText(),ctx.identifier().index());
             if (assignFluid != null) {
                 statements.add(new Incubate(assignFluid, identifier, ctx.expr(0), ctx.expr(1)));
                 assignFluid = null;
@@ -201,7 +208,7 @@ public class AquaIRConstructor extends AquaBaseListener {
                 } // Parser will take care of every other string
 
                 for (int i = 0; i < ctx.identifier().size(); i++) {
-                    identifiers[i] = getIdentifier(ctx.identifier(i));
+                    identifiers[i] = new Identifier(ctx.identifier(i).IDENTIFIER().getText(),ctx.identifier(i).index());
                 }
 
                 statements.add(new Sense(senseType, identifiers[0], identifiers[1]));
@@ -249,17 +256,6 @@ public class AquaIRConstructor extends AquaBaseListener {
         return warnings;
     }
 
-    private Identifier getIdentifier(AquaParser.IdentifierContext identifierContext) {
-        Index[] ind = null;
-        if (identifierContext.index().size() != 0) {
-            ind = new Index[identifierContext.index().size()];
-            for (int j = 0; j<identifierContext.index().size(); j++) {
-                ind[j] = new Index(identifierContext.index(j).expr());
-            }
-        }
-        return new Identifier(identifierContext.IDENTIFIER().getText(),ind);
-    }
-
     private void checkDimensionBoundaries(Identifier[] identifiers) {
         for (Identifier identifier : identifiers) {
             checkDimensionBoundaries(identifier);
@@ -275,10 +271,10 @@ public class AquaIRConstructor extends AquaBaseListener {
             if (identifier.getIndeces() == null) {
                 return;
             }
-            for (int i = 0; i<identifier.getIndeces().length; i++) {
-                if (identifier.getIndeces()[i].getIndex() == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
+            for (int i = 0; i<identifier.getIndeces().size(); i++) {
+                if (identifier.getIndeces().get(i) == null || ((Var) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
-                } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Var) decl).getDimensions()[i].getDimension()) {
+                } else if (getExprValue(identifier.getIndeces().get(i).expr()) > ((Var) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
             }
@@ -286,10 +282,10 @@ public class AquaIRConstructor extends AquaBaseListener {
             if (identifier.getIndeces() == null) {
                 return;
             }
-            for (int i = 0; i<identifier.getIndeces().length; i++) {
-                if (identifier.getIndeces()[i].getIndex() == null || ((Fluid) decl).getDimensions()[i].getDimension() == null) {
+            for (int i = 0; i<identifier.getIndeces().size(); i++) {
+                if (identifier.getIndeces().get(i) == null || ((Fluid) decl).getDimensions()[i].getDimension() == null) {
                     errors.add("ERROR: "+identifier.getIdentifier()+" null index");
-                } else if (getExprValue(identifier.getIndeces()[i].getIndex()) > ((Fluid) decl).getDimensions()[i].getDimension()) {
+                } else if (getExprValue(identifier.getIndeces().get(i).expr()) > ((Fluid) decl).getDimensions()[i].getDimension()) {
                     errors.add("ERROR: "+identifier.getIdentifier()+ " index out of bounds");
                 }
             }
@@ -364,7 +360,8 @@ public class AquaIRConstructor extends AquaBaseListener {
         List<Statement> newList = new ArrayList<>();
         for (Statement stmt : statements) {
             if (stmt instanceof AssignExpr) {
-                varMap.put(((AssignExpr) stmt).getIdentifier().getIdentifier(),getExprValue(((AssignExpr) stmt).getExpr()));
+                String name = getIndex(((AssignExpr) stmt).getIdentifier().getIdentifier(),((AssignExpr) stmt).getIdentifier().getIndeces());
+                varMap.put(name, getExprValue(((AssignExpr) stmt).getExpr()));
             } else if (stmt instanceof Repeat) {
                 Repeat repeat = (Repeat) stmt;
                 Integer numberOfIterations = getExprValue(repeat.getExpr());
@@ -379,35 +376,48 @@ public class AquaIRConstructor extends AquaBaseListener {
                 ForLoop forLoop = (ForLoop) stmt;
                 Integer index = getExprValue(forLoop.getFrom());
                 Integer to = getExprValue(forLoop.getTo());
-                if (index == null || to == null) {
-                    System.out.println("NOT SUPPOSED TO BE HERE");
-                    return null;
-                } else if (to < index) {
-                    return null;
-                }
                 if (varMap.get(forLoop.getIdentifier()) != null) {
                     warnings.add("WARNING: "+forLoop.getIdentifier()+" has already been initialized and will be overwritten in loop");
                 }
                 varMap.put(forLoop.getIdentifier(),index);
-                while (index <= to) {
-                    newList.addAll(runOverLoops(forLoop.getStatements()));
-                    index++;
-                    varMap.put(forLoop.getIdentifier(),index);
+                if (index == null || to == null) {
+                    System.out.println("NOT SUPPOSED TO BE HERE");
+                    return null;
+                } else if (to < index) {
+                    while (index >= to) {
+                        newList.addAll(runOverLoops(forLoop.getStatements()));
+                        index--;
+                        varMap.put(forLoop.getIdentifier(),index);
+                    }
+                } else {
+                    while (index <= to) {
+                        newList.addAll(runOverLoops(forLoop.getStatements()));
+                        index++;
+                        varMap.put(forLoop.getIdentifier(),index);
+                    }
                 }
                 varMap.remove(forLoop.getIdentifier());
             } else if(stmt instanceof Mix) {
+                Identifier[] identifiers = new Identifier[((Mix) stmt).getIdentifiers().length];
+                for (int i = 0; i<identifiers.length; i++) {
+                    identifiers[i] = new Identifier(getIndex(((Mix) stmt).getIdentifiers()[i].getIdentifier(),((Mix) stmt).getIdentifiers()[i].getIndeces()),null);
+                }
                 Integer[] ratio = new Integer[((Mix) stmt).getRatioExpr().length];
                 for (int j = 0; j < ((Mix) stmt).getRatioExpr().length; j++) {
                     ratio[j] = getExprValue(((Mix) stmt).getRatioExpr()[j]);
                 }
+                Identifier assign = new Identifier(getIndex(((Mix) stmt).getAssign().getIdentifier(), ((Mix) stmt).getAssign().getIndeces()),null);
                 checkDimensionBoundaries(((Mix) stmt).getIdentifiers());
-                newList.add(new Mix(((Mix) stmt).getAssign(),((Mix) stmt).getIdentifiers(),ratio,getExprValue(((Mix) stmt).getTimeExpr())));
+                newList.add(new Mix(assign,identifiers,ratio,getExprValue(((Mix) stmt).getTimeExpr())));
             } else if (stmt instanceof Incubate) {
                 checkDimensionBoundaries(((Incubate) stmt).getIdentifier());
-                newList.add(new Incubate(((Incubate) stmt).getAssign(),((Incubate) stmt).getIdentifier(),
-                        getExprValue(((Incubate) stmt).getTemperatureExpr()),getExprValue(((Incubate) stmt).getTimeExpr())));
+                Identifier identifier = new Identifier(getIndex(((Incubate) stmt).getIdentifier().getIdentifier(), ((Incubate) stmt).getIdentifier().getIndeces()),null);
+                Identifier assign = new Identifier(getIndex(((Incubate) stmt).getAssign().getIdentifier(), ((Incubate) stmt).getAssign().getIndeces()),null);
+                newList.add(new Incubate(assign,identifier, getExprValue(((Incubate) stmt).getTemperatureExpr()),getExprValue(((Incubate) stmt).getTimeExpr())));
             } else if (stmt instanceof Sense) {
-                newList.add(new Sense(((Sense) stmt).getSenseType(),((Sense) stmt).getFrom(),((Sense) stmt).getInto()));
+                Identifier from = new Identifier(getIndex(((Sense) stmt).getFrom().getIdentifier(), ((Sense) stmt).getFrom().getIndeces()),null);
+                Identifier into = new Identifier(getIndex(((Sense) stmt).getInto().getIdentifier(), ((Sense) stmt).getInto().getIndeces()),null);
+                newList.add(new Sense(((Sense) stmt).getSenseType(), from, into));
             } else {
                 // TODO: Revisit dimensions to make them into an array and check whether the length is out of bounds
                 newList.add(stmt);
@@ -470,5 +480,17 @@ public class AquaIRConstructor extends AquaBaseListener {
             return null;
         }
         return var;
+    }
+
+    private String getIndex(String name, List<AquaParser.IndexContext> indexContexts) {
+        // If there are no indices, the list will be null
+        if (indexContexts == null) {
+            return name;
+        }
+        // Handle multiple dimensions.
+        for (AquaParser.IndexContext index: indexContexts) {
+            name+=("["+getExprValue(index.expr())+"]");
+        }
+        return name;
     }
 }

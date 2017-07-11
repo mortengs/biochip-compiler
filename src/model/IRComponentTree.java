@@ -2,31 +2,33 @@ package model;
 
 import operations.*;
 import components.*;
-
 import java.util.*;
 
 class IRComponentTree {
 
     private Node<Component> componentTree;
-    private List<Node> urgentPath = new ArrayList<>();
-    private int longestTime;
+    private int longestPath = 0;
 
     IRComponentTree(Node<Statement> statementTree) {
-        IRWalker irWalker = new IRWalker();
-        Map<Node,Node> componentMap = resourceConstrainedListScheduling(statementTree,irWalker.getLongestPathTime(statementTree));
+        IRComponentPathAnalyser irComponentPathAnalyser = new IRComponentPathAnalyser();
+        Map<Node,Node> componentMap = resourceConstrainedListScheduling(statementTree, irComponentPathAnalyser.getLongestPathTime(statementTree));
         componentTree = buildSchematicDesign(statementTree,componentMap);
+    }
+
+    int getLongestPath() {
+        return longestPath;
     }
 
     // LS algorithm
     private Map<Node,Node> resourceConstrainedListScheduling(Node<Statement> rootStatementTree, int longestTime) {
-        this.longestTime = longestTime;
         // List of all the used components
         List<Node> usedComponents = new ArrayList<>();
         // Queue of statements
         Queue<Node> statementQueue = new LinkedList<>();
         // Map of statements and components.
         Map<Node,Node> componentMap = new HashMap<>();
-        // The most urgent path
+        List<Node> visited = new ArrayList<>();
+        // Queue that prioritises on the most urgent path
         statementQueue.add(rootStatementTree);
 
         while(!statementQueue.isEmpty()) {
@@ -37,13 +39,12 @@ class IRComponentTree {
 
             for (int i = 0; i < node.getChildren().size(); i++) {
                 // Get the most urgent first
-                if (((Node) node.getChildren().get(i)).getUrgency()) {
-                    statementQueue.add((Node) node.getChildren().get(i));
-                    urgentPath.add((Node) node.getChildren().get(i));
-                } else {
+                if (!visited.contains(node.getChildren().get(i))) {
+                    visited.add((Node) node.getChildren().get(i));
                     children.add((Node) node.getChildren().get(i));
                 }
             }
+            Collections.sort(children, Comparator.comparing(Node::getUrgency));
             statementQueue.addAll(children);
 
             if (node.getData() instanceof operations.Input) {
@@ -82,6 +83,13 @@ class IRComponentTree {
             if (node.getData() == null) {
                 continue;
             }
+
+            if (node.getUrgency() == 0) {
+                if (((Component) componentMap.get(node).getData()).getTime() > longestPath) {
+                    longestPath = ((Component) componentMap.get(node).getData()).getTime();
+                }
+            }
+
             // For each node. Set the children of the component
             Node componentNode = componentMap.get(node);
             for (int i = 0; i < node.getChildren().size(); i++) {
@@ -132,7 +140,7 @@ class IRComponentTree {
             if (((Incubate) node.getData()).getTime() != null) {
                 heater.getData().addTime(((Incubate) node.getData()).getTime());
             } else {
-                heater.getData().addTime(DefaultValues.getHeaterDefaultTime());
+                heater.getData().addTime(Configuration.getHeaterDefaultTime());
             }
 
             usedComponents.add(heater);
@@ -159,7 +167,7 @@ class IRComponentTree {
                     if (((Incubate) node.getData()).getTime() != null) {
                         heater.getData().addTime(((Incubate) node.getData()).getTime());
                     } else {
-                        heater.getData().addTime(DefaultValues.getHeaterDefaultTime());
+                        heater.getData().addTime(Configuration.getHeaterDefaultTime());
                     }
                     usedComponents.add(heater);
                     componentMap.put(node, heater);
@@ -174,6 +182,7 @@ class IRComponentTree {
                         }
                     }
                     // The shortest time heater will be added.
+                    heater.getData().addTime(((Incubate) node.getData()).getTime());
                     componentMap.put(node, heater);
                 }
             }
@@ -189,7 +198,7 @@ class IRComponentTree {
             if (((Mix) node.getData()).getTime() != null) {
                 mixer.getData().addTime(((Mix) node.getData()).getTime());
             } else {
-                mixer.getData().addTime(DefaultValues.getMixerDefaultTime());
+                mixer.getData().addTime(Configuration.getMixerDefaultTime());
             }
 
             usedComponents.add(mixer);
@@ -216,7 +225,7 @@ class IRComponentTree {
                     if (((Mix) node.getData()).getTime() != null) {
                         mixer.getData().addTime(((Mix) node.getData()).getTime());
                     } else {
-                        mixer.getData().addTime(DefaultValues.getMixerDefaultTime());
+                        mixer.getData().addTime(Configuration.getMixerDefaultTime());
                     }
                     usedComponents.add(mixer);
                     componentMap.put(node, mixer);
@@ -231,6 +240,7 @@ class IRComponentTree {
                         }
                     }
                     // The shortest time heater will be added.
+                    mixer.getData().addTime(((Mix) node.getData()).getTime());
                     componentMap.put(node, mixer);
                 }
             }
@@ -239,7 +249,7 @@ class IRComponentTree {
 
     private void assignInput(Node node, Map<Node,Node> componentMap) {
         components.Input input = new components.Input(((operations.Input) node.getData()).getInput_integer());
-        input.addTime(DefaultValues.getInputDefaultTime());
+        input.addTime(Configuration.getInputDefaultTime());
         componentMap.put(node,new Node(input));
     }
 
@@ -249,7 +259,7 @@ class IRComponentTree {
 
         // Initialize the first component. After this we know that there always is a component
         if (indices.isEmpty()) {
-            detector.getData().addTime(DefaultValues.getDetectorDefaultTime());
+            detector.getData().addTime(Configuration.getDetectorDefaultTime());
             usedComponents.add(detector);
             componentMap.put(node,detector);
         } else {
@@ -260,7 +270,7 @@ class IRComponentTree {
                 if (((Detector) usedComponents.get(index).getData()).getTime() <= time) {
                     isGoingOverUgerncy = false;
                     detector = usedComponents.get(index);
-                    ((Detector) usedComponents.get(index).getData()).addTime(DefaultValues.getDetectorDefaultTime());
+                    ((Detector) usedComponents.get(index).getData()).addTime(Configuration.getDetectorDefaultTime());
                     componentMap.put(node,detector);
                     // If all the components are going over the urgency limit, create a new component
                 } else {
@@ -271,7 +281,7 @@ class IRComponentTree {
             // Going over the urgency limit with the shortest time possible
             if (isGoingOverUgerncy) {
                 if (indices.size() < Constraints.getNumberOfDetectors()) {
-                    detector.getData().addTime(DefaultValues.getDetectorDefaultTime());
+                    detector.getData().addTime(Configuration.getDetectorDefaultTime());
                     usedComponents.add(detector);
                     componentMap.put(node, detector);
                     // All available components have been allocated and the urgency limit has been reached
@@ -285,13 +295,11 @@ class IRComponentTree {
                         }
                     }
                     // The shortest time heater will be added.
+                    detector.getData().addTime(Configuration.getDetectorDefaultTime());
                     componentMap.put(node, detector);
                 }
             }
         }
     }
 
-    public int getLongestTime() {
-        return longestTime;
-    }
 }

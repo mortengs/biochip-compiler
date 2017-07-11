@@ -45,3 +45,6 @@
 out/production/biochip-compiler/parser/Aqua.g4
 out/production/biochip-compiler/parser/Aqua.tokens
 out/production/biochip-compiler/parser/AquaLexer.tokens
+
+# MHDL files in output
+out/production/biochip-compiler/*.mhdl
